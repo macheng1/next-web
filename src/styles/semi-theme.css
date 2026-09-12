@@ -1,0 +1,780 @@
+/* ============================================================
+   Semi UI ⇄ 商汇设计令牌 · 桥接层
+   来源：《商汇黄页-01-设计规范》v2.0
+   作用：让 Semi 组件（Button / Input / Switch / Tag / Progress / Card / Modal /
+        SideSheet / Avatar）直接长成玉青·墨青的样子，组件层只做「传参 + 语义映射」。
+   ------------------------------------------------------------
+   两条必须知道的规则：
+   ① Semi 的语义变量声明在 `body` 上（semi-ui-19/lib/es/_base/base.css）。
+      这里用 `html body`（特异性 0,0,2 > 0,0,1）而不是 `body`，
+      保证无论 CSS 的打包顺序如何都能覆盖，不依赖 import 先后。
+   ② Semi 的组件 CSS 是「未分层」的，而 Tailwind v4 的工具类在
+      `@layer utilities` 里 —— 未分层样式永远压过分层样式。
+      所以对 Semi 内部的颜色/尺寸调整必须写在本文件（或内联样式），
+      只给元素加 Tailwind 工具类是压不动的。
+   ============================================================ */
+
+/* ============================================================
+   1. 令牌桥接：Semi 语义变量 → 商汇令牌
+   ============================================================ */
+html body {
+  /* —— 品牌主色：玉青 600（配白字 5.63:1，达 AA；500 仅 3.9:1 不够） —— */
+  --semi-color-primary: var(--jade-600);
+  --semi-color-primary-hover: var(--jade-700);
+  --semi-color-primary-active: var(--jade-800);
+  /* 禁用态不用浅色底，交给 opacity .45 —— 与规范「禁用 = 降透明度 + 去投影」一致 */
+  --semi-color-primary-disabled: var(--jade-600);
+  --semi-color-primary-light-default: var(--jade-50);
+  --semi-color-primary-light-hover: var(--jade-100);
+  --semi-color-primary-light-active: var(--jade-200);
+  --semi-color-primary-light-disabled: var(--jade-50);
+  --semi-color-focus-border: var(--jade-400);
+
+  /* —— 语义色 —— */
+  /* Switch 开启态在 Semi 里取的是 success，必须一并指向玉青，否则开关会变绿 */
+  --semi-color-success: var(--success);
+  --semi-color-success-hover: var(--jade-700);
+  --semi-color-success-active: var(--jade-800);
+  --semi-color-warning: var(--warning);
+  --semi-color-warning-light-default: var(--warning-bg);
+  --semi-color-danger: var(--error);
+  --semi-color-danger-light-default: var(--error-bg);
+  --semi-color-danger-light-hover: var(--error-bg);
+  --semi-color-danger-light-active: var(--error-bg);
+  --semi-color-info: var(--info);
+
+  /* —— 文本层级 —— */
+  --semi-color-text-0: var(--ink-900);
+  --semi-color-text-1: var(--ink-800);
+  --semi-color-text-2: var(--ink-500);
+  --semi-color-text-3: var(--ink-400);
+
+  /* —— 边界 / 填充 / 表面 —— */
+  --semi-color-border: var(--ink-200);
+  --semi-color-fill-0: var(--ink-50);
+  --semi-color-fill-1: var(--ink-100);
+  --semi-color-fill-2: var(--ink-200);
+  --semi-color-bg-0: var(--paper);
+  --semi-color-bg-1: var(--paper);
+  --semi-color-bg-2: var(--surface);
+  --semi-color-bg-3: var(--surface);
+  --semi-color-bg-4: var(--surface);
+  --semi-color-disabled-text: var(--ink-300);
+  --semi-color-disabled-bg: var(--ink-100);
+  --semi-color-disabled-border: var(--ink-200);
+  --semi-color-disabled-fill: var(--ink-50);
+
+  /* —— 浮层：遮罩统一色，不叠加模糊 —— */
+  --semi-color-overlay-bg: var(--veil);
+  --semi-shadow-elevated: var(--sh-dialog);
+
+  /* —— 圆角对齐商汇档位 —— */
+  --semi-border-radius-small: var(--r-sm);
+  --semi-border-radius-medium: var(--r-md);
+  --semi-border-radius-large: var(--r-lg);
+  --semi-border-radius-full: var(--r-pill);
+}
+
+/* ============================================================
+   2. 按钮 Button —— 规范 §07
+   主按钮玉青 600 底 + 白字 + 玉青投影，每屏只允许一个；
+   高度：lg 48px（表单提交）/ md 46px（默认，触达下限）/ sm 34px（密集场景）。
+   ============================================================ */
+.shhy-btn.semi-button {
+  border-radius: var(--shhy-btn-radius, var(--r-md));
+  font-family: var(--font-sans);
+  font-weight: 600;
+  box-shadow: none;
+  /* §09：按压只变色、不缩放 —— Semi 默认有 transform，这里统一抹平 */
+  transform: none;
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.shhy-btn.semi-button .semi-button-content {
+  gap: 7px;
+}
+
+/* Semi 用 margin 做图标与文字的间距，改用 gap 后把 margin 归零，避免叠加成 15px */
+.shhy-btn.semi-button .semi-button-content-left,
+.shhy-btn.semi-button .semi-button-content-right {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.shhy-btn--lg.semi-button {
+  height: 48px;
+  padding: 0 22px;
+  font-size: var(--text-body);
+}
+
+.shhy-btn--md.semi-button {
+  height: 46px;
+  padding: 0 22px;
+  font-size: var(--text-body);
+}
+
+.shhy-btn--sm.semi-button {
+  height: 34px;
+  padding: 0 14px;
+  font-size: var(--text-sub);
+  border-radius: var(--shhy-btn-radius, var(--r-sm));
+}
+
+/* 主按钮：玉青投影 */
+.shhy-btn--primary.semi-button.semi-button-solid {
+  box-shadow: var(--sh-jade);
+}
+
+/* 次级按钮：玉青 50 底 + 玉青 800 字 + 玉青 200 描边 */
+.shhy-btn--secondary.semi-button.semi-button-light {
+  border: 1px solid var(--jade-200);
+  color: var(--jade-800);
+}
+
+.shhy-btn--secondary.semi-button.semi-button-light:not(.semi-button-disabled):hover,
+.shhy-btn--secondary.semi-button.semi-button-light:not(.semi-button-disabled):active {
+  color: var(--jade-800);
+}
+
+/* 描边按钮：surface 底 + ink-200 描边 + ink-800 字（非提交类动作） */
+.shhy-btn--outline.semi-button.semi-button-outline {
+  background-color: var(--surface);
+  border-color: var(--ink-200);
+  color: var(--ink-800);
+}
+
+.shhy-btn--outline.semi-button.semi-button-outline:not(.semi-button-disabled):hover {
+  background-color: var(--ink-50);
+}
+
+.shhy-btn--outline.semi-button.semi-button-outline:not(.semi-button-disabled):active {
+  background-color: var(--ink-100);
+}
+
+/* 幽灵按钮：透明底 + 玉青 700 字，最低视觉权重 */
+.shhy-btn--ghost.semi-button.semi-button-borderless {
+  color: var(--jade-700);
+}
+
+/* 危险按钮：朱砂实底，用于删除 / 解绑等不可逆动作。不投影 —— 破坏性动作不该有「更突出」的观感 */
+.shhy-btn--danger.semi-button.semi-button-solid {
+  box-shadow: none;
+}
+
+.shhy-btn--danger.semi-button.semi-button-solid:not(.semi-button-disabled):hover {
+  background-color: color-mix(in srgb, var(--error) 88%, #000);
+}
+
+.shhy-btn--danger.semi-button.semi-button-solid:not(.semi-button-disabled):active {
+  background-color: color-mix(in srgb, var(--error) 78%, #000);
+}
+
+/* —— 各 variant 的默认配色，同时充当「自定义 tone」的变量回落值 ——
+   这些声明本身不改变外观（常态配色仍由上面的高特异性规则决定），
+   只是把颜色登记成变量：调用方内联覆盖其中一维时，其余维度自动沿用 variant 默认，
+   不会出现「只换了底色、文字反而看不清」的半截色。 */
+.shhy-btn--primary.semi-button.semi-button-solid {
+  --shhy-btn-bg: var(--jade-600);
+  --shhy-btn-fg: #fff;
+  --shhy-btn-border: var(--jade-600);
+}
+
+.shhy-btn--secondary.semi-button.semi-button-light {
+  --shhy-btn-bg: var(--jade-50);
+  --shhy-btn-fg: var(--jade-800);
+  --shhy-btn-border: var(--jade-200);
+}
+
+.shhy-btn--outline.semi-button.semi-button-outline {
+  --shhy-btn-bg: var(--surface);
+  --shhy-btn-fg: var(--ink-800);
+  --shhy-btn-border: var(--ink-200);
+}
+
+.shhy-btn--ghost.semi-button.semi-button-borderless {
+  --shhy-btn-bg: transparent;
+  --shhy-btn-fg: var(--jade-700);
+  --shhy-btn-border: transparent;
+}
+
+.shhy-btn--danger.semi-button.semi-button-solid {
+  --shhy-btn-bg: var(--error);
+  --shhy-btn-fg: #fff;
+  --shhy-btn-border: var(--error);
+}
+
+/* —— 调用方自定义配色（组件层打上 data-tone="custom"）——
+   hover / active 用底色自动变暗，所以换任何色都不会丢掉按压反馈。
+   这里必须用 !important：Semi 的 variant 选择器最高到 5 个类级
+   （如 `.semi-button-primary:not(..):not(..):not(..):hover`），
+   普通规则压不住，而 `[data-tone]` 这个属性钩子已是最省的选择方式。 */
+.shhy-btn.semi-button[data-tone="custom"] {
+  background-color: var(--shhy-btn-bg, transparent);
+  color: var(--shhy-btn-fg, inherit);
+  border-color: var(--shhy-btn-border, transparent);
+  box-shadow: none;
+}
+
+.shhy-btn.semi-button[data-tone="custom"]:not(.semi-button-disabled):hover {
+  background-color: color-mix(in srgb, var(--shhy-btn-bg, transparent) 88%, #000) !important;
+  color: var(--shhy-btn-fg, inherit) !important;
+  border-color: var(--shhy-btn-border, transparent) !important;
+}
+
+.shhy-btn.semi-button[data-tone="custom"]:not(.semi-button-disabled):active {
+  background-color: color-mix(in srgb, var(--shhy-btn-bg, transparent) 78%, #000) !important;
+}
+
+/* 禁用：降透明度 + 去投影（不靠变浅色表达） */
+.shhy-btn.semi-button.semi-button-disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+/* ============================================================
+   3. 输入框 Field —— 规范 §07
+   ink-50 底 + ink-100 描边 + 46px 高 + --r-md；
+   聚焦：描边转 jade-400、底转 surface、外扩 3px jade-50 光晕。
+   ============================================================ */
+.shhy-field .semi-input-wrapper {
+  min-height: 46px;
+  padding: 0;
+  border-radius: var(--r-md);
+  border-color: var(--ink-100);
+  background-color: var(--ink-50);
+}
+
+.shhy-field .semi-input-wrapper:hover {
+  border-color: var(--ink-200);
+  background-color: var(--ink-50);
+}
+
+.shhy-field .semi-input-wrapper.semi-input-wrapper-focus {
+  background-color: var(--surface);
+  border-color: var(--jade-400);
+  box-shadow: 0 0 0 3px var(--jade-50);
+}
+
+/* 聚焦后 hover / active 不能把描边和底色退回去 */
+.shhy-field .semi-input-wrapper.semi-input-wrapper-focus:hover,
+.shhy-field .semi-input-wrapper.semi-input-wrapper-focus:active {
+  background-color: var(--surface);
+  border-color: var(--jade-400);
+}
+
+/* 错误态：错误色描边 + 错误底（图标与文案由组件层补齐，三重提示） */
+.shhy-field .semi-input-wrapper.semi-input-wrapper-error,
+.shhy-field .semi-input-wrapper.semi-input-wrapper-error:hover,
+.shhy-field .semi-input-wrapper.semi-input-wrapper-error.semi-input-wrapper-focus {
+  background-color: var(--error-bg);
+  border-color: var(--error);
+}
+
+.shhy-field .semi-input-wrapper.semi-input-wrapper-error.semi-input-wrapper-focus {
+  box-shadow: 0 0 0 3px var(--error-bg);
+}
+
+.shhy-field .semi-input {
+  height: 44px;
+  padding: 0 14px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  color: var(--ink-900);
+}
+
+.shhy-field .semi-input::placeholder {
+  color: var(--ink-500);
+}
+
+/* —— 前缀 / 后缀（手机号 +86、密码明文切换等）——
+   Semi 的 `.semi-input-wrapper__with-prefix .semi-input { padding-left: 0 }` 会把输入框
+   左内边距归零，而 `.semi-input-prefix` 自身又没有内边距 —— 结果「+86」会贴住左边框。
+   两者特异性都是 2 个类，谁后加载谁赢（实测 Semi 的样式表排在后面），不能靠顺序赌，
+   这里用 3 个类明确接管：前缀自己吃掉左内边距，并让出与输入文字的间距。 */
+.shhy-field .semi-input-wrapper .semi-input-prefix {
+  padding-left: 14px;
+  padding-right: 8px;
+  color: var(--ink-500);
+  font-family: var(--font-mono);
+  font-size: var(--text-body);
+  white-space: nowrap;
+}
+
+.shhy-field .semi-input-wrapper .semi-input-suffix {
+  color: var(--ink-500);
+  font-size: var(--text-body);
+}
+
+.shhy-field .semi-input-wrapper__with-prefix .semi-input {
+  padding-left: 0;
+}
+
+/* 密码明文切换按钮：满高居中，右侧留一点呼吸位，别贴边 */
+.shhy-field .semi-input-wrapper .semi-input-modebtn {
+  margin-right: 6px;
+}
+
+/* —— 多行输入（Field `multiline` / TextArea）——
+   Semi 的 TextArea 走 `.semi-input-textarea-wrapper`，默认是「fill-1 底 + 无描边」的
+   另一种画法，与单行输入不一致。这里把它对齐成同一套：ink-50 底 + ink-100 描边 + r-md，
+   聚焦同样是 jade-400 描边 + 3px 光晕，保证单行/多行并排时不出现两种输入风格。 */
+.shhy-field .semi-input-textarea-wrapper {
+  display: block;
+  padding: 0;
+  border-radius: var(--shhy-field-radius, var(--r-md));
+  border-color: var(--ink-100);
+  background-color: var(--ink-50);
+}
+
+.shhy-field .semi-input-textarea-wrapper:hover {
+  border-color: var(--ink-200);
+  background-color: var(--ink-50);
+}
+
+.shhy-field .semi-input-textarea-wrapper.semi-input-textarea-wrapper-focus {
+  background-color: var(--surface);
+  border-color: var(--jade-400);
+  box-shadow: 0 0 0 3px var(--jade-50);
+}
+
+.shhy-field .semi-input-textarea-wrapper.semi-input-textarea-wrapper-focus:hover,
+.shhy-field .semi-input-textarea-wrapper.semi-input-textarea-wrapper-focus:active {
+  background-color: var(--surface);
+  border-color: var(--jade-400);
+}
+
+.shhy-field .semi-input-textarea-wrapper.semi-input-textarea-wrapper-error,
+.shhy-field .semi-input-textarea-wrapper.semi-input-textarea-wrapper-error:hover,
+.shhy-field .semi-input-textarea-wrapper.semi-input-textarea-wrapper-error.semi-input-textarea-wrapper-focus {
+  background-color: var(--error-bg);
+  border-color: var(--error);
+}
+
+.shhy-field .semi-input-textarea-wrapper.semi-input-textarea-wrapper-error.semi-input-textarea-wrapper-focus {
+  box-shadow: 0 0 0 3px var(--error-bg);
+}
+
+.shhy-field .semi-input-textarea {
+  min-height: calc(var(--shhy-field-h, 46px) * 2);
+  padding: 11px 14px;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: 1.65;
+  color: var(--ink-900);
+}
+
+.shhy-field .semi-input-textarea::placeholder {
+  color: var(--ink-500);
+}
+
+/* 字数统计（showCounter）：贴右下角，用 cap 字阶，不抢正文 */
+.shhy-field .semi-input-textarea-counter {
+  padding: 0 8px 4px 0;
+  font-family: var(--font-mono);
+  font-size: var(--text-cap);
+  color: var(--ink-500);
+}
+
+/* ============================================================
+   4. 开关 Switch —— 规范 §07（企业端高频）
+   44 × 25px，滑块 20px，位移 19px；关闭 ink-200，开启 jade-600。
+   锁定态：opacity 60% + 琥珀角标，禁止用红色表达（§06 红线）。
+   ============================================================ */
+.shhy-switch.semi-switch {
+  width: 44px;
+  height: 25px;
+  border-width: 0;
+  border-radius: var(--r-pill);
+  background-color: var(--ink-200);
+  transition: background-color 200ms var(--ease-out);
+}
+
+.shhy-switch.semi-switch .semi-switch-knob {
+  top: 2.5px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  transform: translateX(2.5px);
+  box-shadow: var(--sh-1);
+  transition: transform 200ms var(--ease-out);
+}
+
+.shhy-switch.semi-switch.semi-switch-checked {
+  background-color: var(--jade-600);
+}
+
+.shhy-switch.semi-switch.semi-switch-checked .semi-switch-knob {
+  transform: translateX(21.5px);
+}
+
+/* 去掉 Semi 的「按住拉长滑块」回弹，规范要求只做位移与底色 */
+.shhy-switch.semi-switch:active .semi-switch-knob {
+  width: 20px;
+}
+
+.shhy-switch.semi-switch.semi-switch-disabled {
+  cursor: not-allowed;
+}
+
+.shhy-switch--locked.semi-switch {
+  opacity: 0.6;
+}
+
+.shhy-switch--locked.semi-switch::after {
+  content: "";
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--warning);
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+/* —— 自定义开启色（组件层打上 data-on-color="custom"）——
+   默认开启态取 `--semi-color-success`（已桥接为玉青），这里给调用方一个换色出口，
+   如「停用」类开关用中性墨青而非玉青。 */
+.shhy-switch.semi-switch.semi-switch-checked[data-on-color="custom"] {
+  background-color: var(--shhy-switch-on);
+}
+
+/* —— 自定义宽度（组件层打上 data-size="custom"）——
+   滑块 20px + 两侧各 2.5px，位移 = 宽度 - 22.5px，保证任何宽度下都贴边不溢出。 */
+.shhy-switch.semi-switch[data-size="custom"] {
+  width: var(--shhy-switch-w);
+}
+
+.shhy-switch.semi-switch[data-size="custom"] .semi-switch-knob {
+  transform: translateX(2.5px);
+}
+
+.shhy-switch.semi-switch[data-size="custom"].semi-switch-checked .semi-switch-knob {
+  transform: translateX(calc(var(--shhy-switch-w) - 22.5px));
+}
+
+/* ============================================================
+   5. 筛选 Chips Chip —— 规范 §07
+   胶囊形，静置 surface + ink-200 + ink-700；选中 jade-50 + jade-300 + jade-800。
+   ⚠️ 规范自相矛盾：§07 的 .chip 最小高度 36px，§10 又要求交互元素 ≥46px。
+      默认按 §07 取 36px；纯触屏场景可传 size="touch" 取 46px。
+   ============================================================ */
+.shhy-chip.semi-tag {
+  height: 36px;
+  padding: 0 14px;
+  gap: 6px;
+  border: 1px solid var(--ink-200);
+  border-radius: var(--r-pill);
+  background-color: var(--surface);
+  color: var(--ink-700);
+  font-family: var(--font-sans);
+  font-size: var(--text-sub);
+  font-weight: 400;
+  transition:
+    background-color var(--t-fast) var(--ease-out),
+    border-color var(--t-fast) var(--ease-out),
+    color var(--t-fast) var(--ease-out);
+}
+
+.shhy-chip.semi-tag.shhy-chip--touch {
+  height: 46px;
+}
+
+.shhy-chip.semi-tag:hover {
+  background-color: var(--ink-50);
+}
+
+/* 选中态（放在 hover 之后，保证选中样式不被 hover 覆盖） */
+.shhy-chip.semi-tag.shhy-chip--pressed {
+  background-color: var(--jade-50);
+  border-color: var(--jade-300);
+  color: var(--jade-800);
+  font-weight: 600;
+}
+
+.shhy-chip.semi-tag.shhy-chip--pressed:hover {
+  background-color: var(--jade-100);
+}
+
+/* 禁用：降透明度 + 禁用光标（与按钮同一套表达，不用灰色底冒充禁用） */
+.shhy-chip.semi-tag.shhy-chip--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.shhy-chip.semi-tag.shhy-chip--disabled:hover {
+  background-color: var(--surface);
+}
+
+.shhy-chip.semi-tag.shhy-chip--pressed.shhy-chip--disabled:hover {
+  background-color: var(--jade-50);
+}
+
+/* —— 自定义配色（组件层打上 data-tone="custom"）——
+   选中态也走同一组变量：调用方既然指定了主色，就不再叠加玉青的选中态，
+   否则会出现「自定义底色 + 玉青描边」的串色。 */
+.shhy-chip.semi-tag[data-tone="custom"] {
+  background-color: var(--shhy-chip-bg, var(--surface));
+  border-color: var(--shhy-chip-border, var(--ink-200));
+  color: var(--shhy-chip-fg, var(--ink-700));
+}
+
+.shhy-chip.semi-tag[data-tone="custom"]:hover {
+  background-color: color-mix(in srgb, var(--shhy-chip-bg, var(--surface)) 92%, #000) !important;
+}
+
+.shhy-chip.semi-tag .semi-tag-close {
+  color: var(--jade-600);
+  font-family: var(--font-mono);
+}
+
+/* ============================================================
+   6. 标签 Label —— 规范 §07
+   圆角 --r-xs，11px / 600，内边距 2.5px 8px；颜色由组件层按 tone 内联给出。
+   ============================================================ */
+.shhy-label.semi-tag {
+  height: auto;
+  padding: 2.5px 8px;
+  gap: 4px;
+  border: 0;
+  border-radius: var(--r-xs);
+  font-family: var(--font-sans);
+  font-size: var(--text-cap);
+  line-height: 16px;
+  font-weight: 600;
+}
+
+/* ============================================================
+   7. 头像 / Logo 方块 Avatar —— 规范 §05（v2 变更）
+   统一浅玉青底 + 深玉青字，替代原深色渐变（视觉减重最关键的一处）。
+   尺寸与圆角由组件层按 size 内联给出。
+   ============================================================ */
+.shhy-avatar.semi-avatar {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid var(--jade-200);
+  background-color: var(--jade-100);
+  background-image: linear-gradient(145deg, var(--jade-100), var(--jade-200));
+  color: var(--jade-900);
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Semi 把字号写在尺寸档位类上（`.semi-avatar-medium .semi-avatar-label`，2 个类），
+   会盖掉根节点内联的 fontSize；这里用 3 个类把它收回为继承值，
+   让「字号 = 边长 × 0.44」这条规范口径真正生效。 */
+.shhy-avatar.semi-avatar .semi-avatar-label {
+  font-size: inherit;
+  font-weight: 700;
+  font-family: var(--font-display);
+  line-height: 1;
+}
+
+/* 图片头像：铺满方块、裁切居中。浅玉青底与渐变只在取字态可见，
+   图片态盖住即可，不必为「有图 / 无图」写两套根样式。 */
+.shhy-avatar.semi-avatar > img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================================
+   8. 签名组件 · 信用条 CreditBar —— 规范 §08
+   四段 4px 高、2px 圆角、5px 间距；填充玉青 500 → 300 渐变，空段 ink-200。
+   ============================================================ */
+.shhy-credit-seg {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.shhy-credit .semi-progress {
+  width: 100%;
+  margin: 0;
+}
+
+.shhy-credit .semi-progress-track {
+  height: var(--shhy-credit-h, 4px);
+  border-radius: calc(var(--shhy-credit-h, 4px) / 2);
+  background-color: var(--ink-200);
+  overflow: hidden;
+}
+
+.shhy-credit .semi-progress-track-inner {
+  border-radius: calc(var(--shhy-credit-h, 4px) / 2);
+  background-color: var(--jade-500);
+  background-image: linear-gradient(90deg, var(--jade-500), var(--jade-300));
+}
+
+/* ============================================================
+   9. 企业卡片 EnterpriseCard —— 规范 §07
+   卡片结构：Logo → 名称 → 元信息 → 标签 → 信用条 → 行动。
+   ============================================================ */
+.shhy-ecard {
+  max-width: 340px;
+}
+
+.shhy-ecard .semi-card {
+  border-color: var(--ink-200);
+  border-radius: var(--r-lg);
+  background-color: var(--surface);
+  box-shadow: var(--sh-1);
+  transition:
+    box-shadow var(--t-base) var(--ease-out),
+    border-color var(--t-base) var(--ease-out),
+    transform var(--t-base) var(--ease-out);
+}
+
+.shhy-ecard--clickable {
+  cursor: pointer;
+}
+
+.shhy-ecard--clickable:hover .semi-card {
+  border-color: var(--jade-200);
+  box-shadow: var(--sh-3);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   10. 居中弹窗 Modal —— 规范 §07
+   宽 330px，遮罩统一 --veil 不叠加模糊；无 × 按钮，必须二选一（合规红线）。
+   ============================================================ */
+.shhy-modal-content.semi-modal-content {
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-lg);
+  background-color: var(--surface);
+  box-shadow: var(--sh-dialog);
+}
+
+.shhy-modal-content > .semi-modal-header {
+  justify-content: center;
+  margin: 0;
+  padding: 20px 18px 0;
+  font-size: 15.5px;
+  font-weight: 600;
+  color: var(--ink-900);
+  text-align: center;
+}
+
+.shhy-modal-content > .semi-modal-body {
+  padding: 0 18px 16px;
+}
+
+.shhy-modal-content > .semi-modal-footer {
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--ink-100);
+}
+
+/* 底部等权按钮区：拒绝 / 同意 各占 50%、同为 47px、同为无填充文字按钮。
+   降低拒绝按钮的可发现性属于合规问题，禁止做成「主按钮 vs 幽灵按钮」。 */
+.shhy-modal-actions {
+  display: flex;
+}
+
+.shhy-modal-actions .semi-button.shhy-modal-action {
+  flex: 1 1 0;
+  height: 47px;
+  border-radius: 0;
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+}
+
+.shhy-modal-actions .shhy-modal-action--cancel.semi-button.semi-button-borderless {
+  color: var(--ink-600);
+  font-weight: 500;
+}
+
+.shhy-modal-actions .shhy-modal-action--confirm.semi-button.semi-button-borderless {
+  color: var(--jade-700);
+  font-weight: 600;
+  border-left: 1px solid var(--ink-100);
+}
+
+.shhy-modal-actions .shhy-modal-action--cancel.semi-button.semi-button-borderless:not(.semi-button-disabled):hover {
+  background-color: var(--ink-50);
+}
+
+.shhy-modal-actions .shhy-modal-action--confirm.semi-button.semi-button-borderless:not(.semi-button-disabled):hover {
+  background-color: var(--jade-50);
+}
+
+/* ============================================================
+   11. 底部半屏 Sheet —— 规范 §07
+   圆角仅顶部 22px，拖拽条 38 × 4px，遮罩同 --veil。
+   Web 适配：桌面端限制最大宽度 560px 并居中，避免「半屏」被拉成横带。
+   ============================================================ */
+.shhy-sheet .semi-sidesheet-inner {
+  max-width: var(--shhy-sheet-w, 560px);
+  margin: 0 auto;
+  padding-bottom: 22px;
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  background-color: var(--surface);
+  box-shadow: var(--sh-sheet);
+}
+
+.shhy-sheet .semi-sidesheet-inner::before {
+  content: "";
+  display: var(--shhy-sheet-handle, block);
+  width: 38px;
+  height: 4px;
+  margin: 9px auto 0;
+  border-radius: 2px;
+  background-color: var(--ink-200);
+}
+
+.shhy-sheet .semi-sidesheet-header {
+  align-items: center;
+  padding: 14px 18px 16px;
+  border-bottom: 0;
+}
+
+.shhy-sheet .semi-sidesheet-title {
+  flex: 1;
+  font-family: var(--font-sans);
+  font-size: var(--text-h3);
+  font-weight: 600;
+  color: var(--ink-900);
+}
+
+.shhy-sheet .semi-sidesheet-body {
+  padding: 0 18px;
+}
+
+.shhy-sheet .semi-sidesheet-footer {
+  padding: 0 18px;
+}
+
+/* 右侧 28px 圆形关闭按钮（Semi 的 semi-sidesheet-close 是个 IconButton） */
+.shhy-sheet .semi-sidesheet-close.semi-button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--ink-50);
+  color: var(--ink-500);
+}
+
+.shhy-sheet .semi-sidesheet-close.semi-button:hover {
+  background-color: var(--ink-100);
+}
+
+/* 底部按钮区：取消 : 保存 = 1 : 1.7 */
+.shhy-sheet-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.shhy-sheet-actions .semi-button.shhy-sheet-action--cancel {
+  flex: 1 1 0;
+}
+
+.shhy-sheet-actions .semi-button.shhy-sheet-action--confirm {
+  flex: 1.7 1 0;
+}

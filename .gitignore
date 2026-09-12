@@ -15,6 +15,7 @@
 
 # next.js
 /.next/
+/.next-*/
 /out/
 
 # production
@@ -32,6 +33,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# 但变量清单要进版本库，否则新人不知道要配哪些
+!.env.example
 
 # vercel
 .vercel
@@ -39,3 +42,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# WorkBuddy workspace data (会话记忆/日志，不进仓库)
+.workbuddy/
