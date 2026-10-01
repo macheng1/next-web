@@ -57,3 +57,32 @@ it("release validation requires explicit shared protection evidence", () => {
     }),
   ).toEqual([]);
 });
+it("wx-backend alone is enough for new website readiness and release", async () => {
+  const fetchMock = vi.fn(async () =>
+    Response.json({ code: 200, data: { status: "ok" } }),
+  );
+  vi.stubGlobal("fetch", fetchMock);
+  expect(
+    await checkReadiness({
+      deploymentEnv: "development",
+      siteUrl: "http://localhost:3000",
+      trustedOrigins: [],
+      memberApiUrl: "https://dev.api.shopai.org.cn/api/v1",
+    }),
+  ).toBe(true);
+  expect(fetchMock).toHaveBeenCalledTimes(1);
+  expect(
+    validateProductionEnvironment(
+      {
+        NEXT_PUBLIC_SITE_URL: "https://site.test",
+        MEMBER_API_URL: "https://prd.api.shopai.org.cn/api/v1",
+        RATE_LIMIT_MODE: "gateway",
+      },
+      {
+        mode: "gateway",
+        verifiedAt: new Date().toISOString(),
+        evidenceReference: "verified",
+      },
+    ),
+  ).toEqual([]);
+});

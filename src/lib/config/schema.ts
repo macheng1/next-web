@@ -1,4 +1,4 @@
-export type DeploymentEnv = "development" | "test" | "production";
+export type DeploymentEnv = "local" | "development" | "test" | "production";
 export interface ServerConfig {
   portalApiUrl?: string;
   memberApiUrl?: string;
@@ -45,7 +45,7 @@ export function parseServerConfig(
       : env.NODE_ENV === "test"
         ? "test"
         : "development");
-  if (!["development", "test", "production"].includes(rawEnv))
+  if (!["local", "development", "test", "production"].includes(rawEnv))
     throw new ConfigurationError("DEPLOYMENT_ENV");
   const deploymentEnv = rawEnv as DeploymentEnv;
   const production = deploymentEnv === "production";

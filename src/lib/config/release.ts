@@ -18,7 +18,7 @@ export function validateProductionEnvironment(
         : "configuration",
     );
   }
-  for (const key of ["NEXT_PUBLIC_SITE_URL", "API_URL", "MEMBER_API_URL"])
+  for (const key of ["NEXT_PUBLIC_SITE_URL", "MEMBER_API_URL"])
     if (!env[key] && !missing.includes(key)) missing.push(key);
   if (!["gateway", "backend"].includes(env.RATE_LIMIT_MODE || ""))
     missing.push("RATE_LIMIT_MODE");

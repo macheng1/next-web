@@ -2,9 +2,11 @@
 
 ## 开发和验证
 
+三套环境命令与后端配套见 [环境说明](environments.md)。
+
 使用 Node.js 22.12 及以上版本，npm ci 安装锁定依赖。npm run dev 启动开发；npm run check 依次检查类型、规范、单元测试、独立构建与浏览器交互。浏览器测试使用 Chrome，首次运行可执行 npx playwright install chrome。测试夹具在 tests/browser/fixture，由 Vite 临时服务，不是线上页面。
 
-开发配置复制 .env.example，按需要填写两套后端。API_URL 对接门户（带 /api），MEMBER_API_URL 对接会员（带 /api/v1），没有互相回退。DEPLOYMENT_ENV=development/test/production 表示部署环境，NODE_ENV 由 Next 管理。生产必须使用 HTTPS 站点和后端。NEXT_PUBLIC_ 变量会进入浏览器构建，不能放密钥。
+开发配置复制 .env.example，按需要填写两套后端。新网站 MEMBER_API_URL 对接 wx-backend（带 /api/v1）；API_URL 仅供保留的旧门户（带 /api）按需配置，没有互相回退。DEPLOYMENT_ENV=local/development/test/production 表示部署环境，NODE_ENV 由 Next 管理。生产必须使用 HTTPS 站点和后端。NEXT_PUBLIC_ 变量会进入浏览器构建，不能放密钥。
 
 ## 请求复用
 
@@ -36,6 +38,6 @@ Providers 集中提供 Semi LocaleProvider。优先直接使用 Semi Input/Form/
 
 buildMetadata 统一 title、description、canonical、语言链接和分享元信息。私有页不索引，测试环境 robots 禁止索引。sitemap 只发布已知真实路由，不枚举未知租户。
 
-/api/health/live 检查网站存活；/api/health/ready 检查两套配置后端的 /health，依赖异常为 503。这不代替后端数据库就绪检测；数据库是否健康以后端健康接口实际内容为准。两接口 no-store，不暴露地址和配置。
+/api/health/live 检查网站存活；/api/health/ready 检查 wx-backend 的 /health，以及按需配置的旧门户后端，依赖异常为 503。这不代替后端数据库就绪检测；数据库是否健康以后端健康接口实际内容为准。两接口 no-store，不暴露地址和配置。
 
 logEvent 只记录白名单事件、状态、耗时、有效 UUID 追踪编号和错误分类。密码、Token、正文不进入日志；不自动向外部服务传数据。外部日志收集器可接进程 JSON 输出，告警由部署平台配置。本仓库不承诺已经配置线上告警或数据备份。

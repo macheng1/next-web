@@ -3,7 +3,7 @@
 ## 发布前
 
 - npm ci；npm run check 通过。构建验收用独立 .next-verify，正式发布使用 npm run build。
-- NEXT_PUBLIC_SITE_URL、API_URL、MEMBER_API_URL 是实际 HTTPS 地址，DEPLOYMENT_ENV=production；敏感变量仅服务端，环境文件不入库。
+- NEXT_PUBLIC_SITE_URL、MEMBER_API_URL 是实际 HTTPS 地址；旧门户启用时 API_URL 也必须配置 HTTPS 地址，DEPLOYMENT_ENV=production；敏感变量仅服务端，环境文件不入库。
 - 反向代理限制请求体、连接时长和速率，覆盖转发头；验证实际域名不是只看进程启动。
 - 网关或后端对登录、短信、上传、询盘执行共享限流；至少用两个网站实例验证频率累计和 429，再记录 RATE_LIMIT_MODE。
 - 外部维护一份限流核验 JSON（不含密钥）：mode（gateway/backend）、verifiedAt（ISO 时间）、evidenceReference（规则和核验记录编号）。设置 RATE_LIMIT_VERIFICATION_FILE 为该文件绝对路径。npm run check:production 会检查结构、匹配模式和 30 天有效期；文件声明不能替代实际测试。

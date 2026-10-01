@@ -2,9 +2,12 @@ import "server-only";
 import type { ServerConfig } from "../config/schema";
 import { requestJson } from "../http/request";
 export async function checkReadiness(config: ServerConfig): Promise<boolean> {
-  if (!config.portalApiUrl || !config.memberApiUrl) return false;
+  if (!config.memberApiUrl) return false;
   const results = await Promise.allSettled(
-    [config.portalApiUrl, config.memberApiUrl].map((url) =>
+    [
+      config.memberApiUrl,
+      ...(config.portalApiUrl ? [config.portalApiUrl] : []),
+    ].map((url) =>
       requestJson<{ status?: string }>(`${url}/health`, {
         timeoutMs: 3000,
         redirect: "error",
