@@ -1,6 +1,7 @@
+import { validateUpload, INQUIRY_UPLOAD_POLICY } from "@/src/lib/security/upload";
+import { clientIp, guardMutation, readFormBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_COUNT = 6;
@@ -28,13 +29,11 @@ const ALLOWED_EXTENSIONS = [
 
 export async function POST(request: NextRequest) {
   try {
-    const headersList = await headers();
-    const clientIP =
-      headersList.get("x-forwarded-for")?.split(",")[0] ||
-      headersList.get("x-real-ip") ||
-      "unknown";
+    await guardMutation(request);
+    const headersList = request.headers;
+    const clientIP = clientIp(request);
 
-    const formData = await request.formData();
+    const formData = await readFormBody(request, 31 * 1024 * 1024);
     const files = formData.getAll("file");
 
     if (!files || files.length === 0) {
@@ -48,7 +47,8 @@ export async function POST(request: NextRequest) {
     }
 
     for (const file of files) {
-      if (!(file instanceof File)) continue;
+      if (!(file instanceof File)) return NextResponse.json({error: "Invalid file"}, {status:400});
+      await validateUpload(file, INQUIRY_UPLOAD_POLICY);
 
       const extension = file.name.includes(".")
         ? `.${file.name.split(".").pop()?.toLowerCase()}`
@@ -97,11 +97,9 @@ export async function POST(request: NextRequest) {
     }
 
     const data = await response.json();
+    if (data?.code != null && Number(data.code) !== 200) return NextResponse.json({code: data.code, message: "Upload failed"}, {status:400});
     return NextResponse.json(data);
-  } catch {
-    return NextResponse.json(
-      { error: "服务器错误，请稍后重试" },
-      { status: 500 },
-    );
+  } catch (error) {
+    return mutationFailure(error);
   }
 }

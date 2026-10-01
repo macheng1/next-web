@@ -1,6 +1,8 @@
+import { MemoryRateLimiter } from "@/src/lib/security/rate-limit";
+import { createHash } from "node:crypto";
+import { clientIp, guardMutation, readJsonBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import {
   MEMBER_TOKEN_COOKIE,
   MEMBER_TOKEN_MAX_AGE,
@@ -167,20 +169,14 @@ function readBizCode(payload: unknown): number | null {
  * 这里只是让用户在前端就能拿到「刚发过」的即时反馈，真正的防刷在后端。
  */
 const FORGOT_WINDOW = 60 * 1000;
-const forgotStore = new Map<string, number>();
-
-function forgotLimited(key: string, now: number): boolean {
-  const last = forgotStore.get(key) ?? 0;
-  if (now - last < FORGOT_WINDOW) return true;
-  forgotStore.set(key, now);
-  return false;
-}
+const forgotStore = new MemoryRateLimiter(1, FORGOT_WINDOW);
 
 export async function POST(
   request: NextRequest,
   { params }: { params: Promise<{ action: string }> },
 ) {
   try {
+    await guardMutation(request);
     const { action } = await params;
 
     if (!isAuthAction(action)) {
@@ -199,14 +195,11 @@ export async function POST(
       return NextResponse.json({ error: "服务器配置错误" }, { status: 500 });
     }
 
-    const headersList = await headers();
-    const clientIP =
-      headersList.get("x-forwarded-for")?.split(",")[0] ||
-      headersList.get("x-real-ip") ||
-      "unknown";
+    const headersList = request.headers;
+    const clientIP = clientIp(request);
     const userAgent = headersList.get("user-agent") || "";
 
-    const body = (await request.json().catch(() => null)) as Record<
+    const body = (await readJsonBody(request)) as Record<
       string,
       unknown
     > | null;
@@ -223,7 +216,7 @@ export async function POST(
 
     if (
       action === "forgot-password" &&
-      forgotLimited(`${clientIP}:${text(body.email)}`, Date.now())
+      !(await forgotStore.check(createHash("sha256").update(`${clientIP}:${text(body.email)}`).digest("hex"))).allowed
     ) {
       return NextResponse.json(
         { error: "重置邮件请求过于频繁，请 60 秒后再试" },
@@ -313,8 +306,7 @@ export async function POST(
       );
     }
     return next;
-  } catch {
-    console.error("Auth route failed");
-    return NextResponse.json({ error: "服务器错误，请稍后重试" }, { status: 500 });
+  } catch (error) {
+    return mutationFailure(error);
   }
 }

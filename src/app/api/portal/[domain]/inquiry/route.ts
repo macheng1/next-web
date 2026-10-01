@@ -1,33 +1,20 @@
+import { SuccessfulSubmissions, MemoryRateLimiter } from "@/src/lib/security/rate-limit";
+import { readBizCode } from "@/src/lib/api-envelope";
+import { createHash } from "node:crypto";
+import { clientIp, guardMutation, readJsonBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 
 const RATE_LIMIT_WINDOW = 60 * 1000;
 const RATE_LIMIT_MAX = 10;
 const MIN_SUBMIT_SECONDS = 3;
 const DUPLICATE_WINDOW = 10 * 60 * 1000;
 
-const rateLimitStore = new Map<string, number[]>();
-const recentSubmissionStore = new Map<string, number>();
+const rateLimitStore = new MemoryRateLimiter(RATE_LIMIT_MAX, RATE_LIMIT_WINDOW);
+const recentSubmissionStore = new SuccessfulSubmissions(DUPLICATE_WINDOW);
 
 function normalizeText(value: unknown) {
   return String(value || "").trim().replace(/\s+/g, " ");
-}
-
-function getRateLimitKey(ip: string, domain: string, userAgent: string) {
-  return `${domain}:${ip}:${userAgent.slice(0, 80)}`;
-}
-
-function isRateLimited(key: string, now: number) {
-  const recent = (rateLimitStore.get(key) || []).filter(
-    (time) => now - time < RATE_LIMIT_WINDOW,
-  );
-  if (recent.length >= RATE_LIMIT_MAX) {
-    rateLimitStore.set(key, recent);
-    return true;
-  }
-  rateLimitStore.set(key, [...recent, now]);
-  return false;
 }
 
 function getDuplicateKey(
@@ -35,23 +22,11 @@ function getDuplicateKey(
   domain: string,
   body: Record<string, unknown>,
 ) {
-  return [
-    domain,
-    ip,
-    normalizeText(body.phone).toLowerCase(),
-    normalizeText(body.message).toLowerCase(),
-  ].join(":");
+  return createHash("sha256").update(JSON.stringify([domain, ip, normalizeText(body.phone), normalizeText(body.message)])).digest("hex");
 }
 
 function isDuplicateSubmission(key: string, now: number) {
-  const lastSubmitAt = recentSubmissionStore.get(key);
-  if (lastSubmitAt && now - lastSubmitAt < DUPLICATE_WINDOW) return true;
-
-  recentSubmissionStore.set(key, now);
-  for (const [storeKey, time] of recentSubmissionStore.entries()) {
-    if (now - time > DUPLICATE_WINDOW) recentSubmissionStore.delete(storeKey);
-  }
-  return false;
+  return recentSubmissionStore.has(key, now);
 }
 
 export async function POST(
@@ -59,18 +34,19 @@ export async function POST(
   { params }: { params: Promise<{ domain: string }> }
 ) {
   try {
+    await guardMutation(request);
     // 获取客户端真实 IP
-    const headersList = await headers();
-    const clientIP = headersList.get("x-forwarded-for")?.split(",")[0] ||
-                     headersList.get("x-real-ip") ||
-                     "unknown";
+    const headersList = request.headers;
+    const clientIP = clientIp(request);
     const userAgent = headersList.get("user-agent") || "";
 
     const { domain } = await params;
     const now = Date.now();
-    const body = await request.json();
+    const body = await readJsonBody(request);
 
-    if (isRateLimited(getRateLimitKey(clientIP, domain, userAgent), now)) {
+    if (!body) return NextResponse.json({error:"Invalid body"},{status:400});
+
+    if (!(await rateLimitStore.check(`${domain}:${clientIP}`, now)).allowed) {
       return NextResponse.json({ error: "提交过于频繁，请稍后再试" }, { status: 429 });
     }
 
@@ -121,7 +97,8 @@ export async function POST(
       );
     }
 
-    const submitBody = { ...body };
+    const submitBody: Record<string, unknown> = {};
+    for (const key of ["name", "phone", "message", "email", "companyName", "attachments", "productId"]) if (key in body) submitBody[key] = body[key];
     delete submitBody.website;
     delete submitBody.formStartedAt;
     const response = await backendFetch("portal", `/portal/${domain}/inquiry`, {
@@ -143,12 +120,11 @@ export async function POST(
     }
 
     const data = await response.json();
+    const code = readBizCode(data);
+    if (code !== null && code !== 200) return NextResponse.json({code, message: "Submit failed"}, {status:400});
+    recentSubmissionStore.mark(getDuplicateKey(clientIP, domain, body), now);
     return NextResponse.json(data);
-  } catch {
-    console.error("Inquiry route failed");
-    return NextResponse.json(
-      { error: "服务器错误，请稍后重试" },
-      { status: 500 }
-    );
+  } catch (error) {
+    return mutationFailure(error);
   }
 }

@@ -1,6 +1,7 @@
+import { validateUpload, DEFAULT_UPLOAD_POLICY } from "@/src/lib/security/upload";
+import { clientIp, guardMutation, readFormBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { BIZ_CODE_OK, readBizCode } from "@/src/lib/api-envelope";
 
 /**
@@ -54,6 +55,7 @@ function isAllowedModule(value: string): value is (typeof ALLOWED_MODULES)[numbe
 
 export async function POST(request: NextRequest) {
   try {
+    await guardMutation(request);
     // 会员侧接口（企业资质上传）指向 wx-backend；门户访客附件走 `/api/upload/fileList`
     // → API_URL（m-wms-backend）。两者是不同后端，别混用。详见 .env.example。
     const apiUrl = process.env.MEMBER_API_URL;
@@ -64,7 +66,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ message: "服务器配置错误" }, { status: 500 });
     }
 
-    const formData = await request.formData();
+    const formData = await readFormBody(request, 11 * 1024 * 1024);
     const file = formData.get("file");
     // 变量不叫 `module`：Next 的 no-assign-module-variable 规则会拦（会与打包器变量混淆）
     const uploadModule =
@@ -86,15 +88,14 @@ export async function POST(request: NextRequest) {
       return paramInvalid("仅支持 JPG / PNG / WebP / PDF 格式的文件");
     }
 
+    await validateUpload(file, DEFAULT_UPLOAD_POLICY);
+
     // 重新组装 FormData：只放行 file，不把前端多余的字段一起透传给后端
     const outbound = new FormData();
     outbound.append("file", file);
 
-    const headersList = await headers();
-    const clientIP =
-      headersList.get("x-forwarded-for")?.split(",")[0] ||
-      headersList.get("x-real-ip") ||
-      "unknown";
+    const headersList = request.headers;
+    const clientIP = clientIp(request);
 
     const response = await backendFetch(
       "member", `/web/files/upload?module=${uploadModule}`,
@@ -123,11 +124,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(payload);
-  } catch {
-    console.error("Upload route failed");
-    return NextResponse.json(
-      { message: "服务器错误，请稍后重试" },
-      { status: 500 },
-    );
+  } catch (error) {
+    return mutationFailure(error);
   }
 }

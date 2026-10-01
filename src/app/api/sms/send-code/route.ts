@@ -1,6 +1,6 @@
+import { clientIp, guardMutation, readJsonBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { readBizCode } from "@/src/lib/api-envelope";
 
 /**
@@ -30,13 +30,14 @@ const BACKEND_PATH = "/sms/send-code";
 
 export async function POST(request: NextRequest) {
   try {
+    await guardMutation(request);
     const apiUrl = process.env.MEMBER_API_URL;
     if (!apiUrl) {
       console.error("SMS route error: MEMBER_API_URL is not configured");
       return NextResponse.json({ error: "服务器配置错误" }, { status: 500 });
     }
 
-    const body = (await request.json().catch(() => null)) as Record<
+    const body = (await readJsonBody(request)) as Record<
       string,
       unknown
     > | null;
@@ -56,11 +57,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "不支持的验证码场景" }, { status: 400 });
     }
 
-    const headersList = await headers();
-    const clientIP =
-      headersList.get("x-forwarded-for")?.split(",")[0] ||
-      headersList.get("x-real-ip") ||
-      "unknown";
+    const headersList = request.headers;
+    const clientIP = clientIp(request);
     const userAgent = headersList.get("user-agent") || "";
 
     const response = await backendFetch("member", BACKEND_PATH, {
@@ -87,8 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(payloadBody);
-  } catch {
-    console.error("SMS route failed");
-    return NextResponse.json({ error: "服务器错误，请稍后重试" }, { status: 500 });
+  } catch (error) {
+    return mutationFailure(error);
   }
 }

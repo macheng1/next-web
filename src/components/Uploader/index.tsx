@@ -1,4 +1,5 @@
 "use client";
+import { safeExternalUrl } from "@/src/lib/security/links";
 
 import { useEffect, useId, useRef, useState } from "react";
 import type { CSSProperties, DragEvent, ReactNode } from "react";
@@ -272,7 +273,7 @@ export function Uploader({
     if (!value) return;
     // 非图片（PDF）：交给浏览器新窗口打开，别塞进 <img>
     if (!isImage) {
-      window.open(value.url, "_blank", "noopener,noreferrer");
+      window.open(safeExternalUrl(value.url), "_blank", "noopener,noreferrer");
       return;
     }
     setPreviewOpen(true);

@@ -1,4 +1,6 @@
+import { buildSecurityHeaders } from "./src/lib/security/headers";
 const nextConfig = {
+  async headers() { return [{ source: "/(.*)", headers: buildSecurityHeaders({production: process.env.NODE_ENV === "production", https: process.env.DEPLOYMENT_ENV === "production"}).filter(h => h.key !== "Content-Security-Policy") }]; },
   /**
    * 构建产物目录。默认 `.next`，但 `next build` 会重建整个目录 —— 如果此时本地还跑着
    * `next dev`，dev 的 turbopack 持久化缓存（`.next/dev` 下的 *.sst）会被一并清掉，
