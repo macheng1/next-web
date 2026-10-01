@@ -1,0 +1,360 @@
+.shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--paper);
+  color: var(--ink-800);
+}
+.header {
+  height: 76px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--ink-100);
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 0 32px;
+}
+.headerLinks {
+  margin-left: auto;
+  font-size: 14px;
+  color: var(--ink-600);
+}
+.header {
+  padding-inline: max(24px, calc((100vw - 1120px) / 2));
+}
+.layout {
+  min-height: calc(100vh - 76px);
+}
+.main {
+  width: 100%;
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 52px 32px 32px;
+  min-width: 0;
+}
+.intro {
+  text-align: center;
+  margin-bottom: 36px;
+}
+.intro p {
+  max-width: 600px;
+  margin: 12px auto 0;
+}
+.guidance {
+  margin-top: 30px;
+  padding: 24px 0;
+  border-bottom: 1px solid var(--ink-200);
+}
+.guidance h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.guidance ol {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+  list-style: none;
+  padding: 0;
+}
+.guidance li {
+  display: flex;
+  gap: 10px;
+  font-size: 13px;
+  color: var(--ink-500);
+  line-height: 1.7;
+}
+.guidance li > span {
+  color: var(--jade-700);
+  font-weight: 600;
+}
+.intro h1 {
+  font-size: 30px;
+  line-height: 1.4;
+  font-weight: 700;
+  margin: 8px 0 10px;
+}
+.intro p,
+.subtitle {
+  color: var(--ink-500);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.steps {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 28px;
+  padding: 0 24px;
+  gap: 24px;
+}
+.steps li {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink-500);
+  font-size: 14px;
+}
+.steps li > span {
+  border: 1px solid var(--ink-200);
+  background: var(--surface);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+.steps li[data-active="true"] {
+  color: var(--jade-800);
+  font-weight: 600;
+}
+.steps li[data-active="true"] > span {
+  background: var(--jade-700);
+  color: white;
+  border-color: var(--jade-700);
+}
+.steps li[data-done="true"] > span {
+  color: var(--jade-700);
+  border-color: var(--jade-200);
+}
+.card {
+  padding: 32px;
+  background: var(--surface);
+  border: 1px solid var(--ink-100);
+  border-radius: 16px;
+  box-shadow: 0 4px 24px color-mix(in srgb, var(--jade-900) 3%, transparent);
+}
+.card h2 {
+  font-size: 20px;
+  font-weight: 650;
+  margin: 0 0 8px;
+}
+.subtitle {
+  margin-bottom: 24px;
+}
+.scope {
+  padding: 16px;
+  background: var(--jade-50);
+  border: 1px solid var(--jade-100);
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-size: 13px;
+}
+.scope p {
+  margin: 6px 0 0;
+  color: var(--ink-500);
+  line-height: 1.7;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+.full {
+  grid-column: 1/-1;
+}
+.sectionTitle {
+  border-top: 1px solid var(--ink-100);
+  padding-top: 24px;
+  margin: 26px 0 18px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--ink-100);
+  margin-top: 32px;
+  padding-top: 24px;
+}
+.actions > div {
+  display: flex;
+  gap: 12px;
+}
+.error {
+  background: var(--error-bg);
+  color: var(--error);
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+.notice {
+  background: var(--jade-50);
+  padding: 14px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: var(--jade-800);
+}
+.draft {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--jade-200);
+  padding: 12px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.draft > span {
+  flex: 1;
+}
+.review {
+  margin: 0 0 28px;
+}
+.review > div {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  padding: 12px 0;
+  gap: 18px;
+  border-bottom: 1px solid var(--ink-100);
+  font-size: 14px;
+}
+.review dt {
+  color: var(--ink-500);
+}
+.review dd {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.sms {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+.sms > div {
+  flex: 1;
+}
+.privacy {
+  font-size: 12px;
+  color: var(--ink-500);
+  line-height: 1.8;
+  margin-top: 20px;
+  display: flex;
+  gap: 8px;
+}
+.privacy > span {
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.success {
+  padding: 24px 0;
+  color: var(--jade-700);
+}
+.success dl {
+  font-size: 14px;
+  line-height: 1.8;
+  margin: 24px 0;
+}
+.success dd {
+  margin: 8px 0 20px;
+  overflow-wrap: anywhere;
+  color: var(--ink-800);
+}
+.home {
+  display: inline-block;
+  padding: 12px 24px;
+  background: var(--jade-700);
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+}
+@media (max-width: 900px) {
+  .main {
+    padding: 28px 24px;
+  }
+  .header {
+    padding: 0 24px;
+  }
+  .card {
+    padding: 24px;
+  }
+}
+@media (max-width: 540px) {
+  .header {
+    height: 64px;
+    padding: 0 16px;
+    gap: 10px;
+  }
+  .header img {
+    width: 112px;
+    height: auto;
+  }
+  .headerLinks {
+    font-size: 12px;
+  }
+  .intro {
+    text-align: left;
+    margin-bottom: 24px;
+  }
+  .guidance ol {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  .main {
+    padding: 24px 16px max(24px, env(safe-area-inset-bottom));
+  }
+  .intro h1 {
+    font-size: 26px;
+  }
+  .steps {
+    gap: 8px;
+    margin: 24px 0;
+    padding: 0;
+  }
+  .steps li {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 12px;
+  }
+  .card {
+    padding: 22px 16px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+  .actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .actions > div {
+    justify-content: flex-end;
+  }
+  .actions > button {
+    align-self: flex-start;
+  }
+  .review > div {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+  .sms {
+    gap: 8px;
+  }
+  .header > button {
+    padding: 0 8px;
+  }
+  .draft > span {
+    flex-basis: 100%;
+  }
+}
+
+.shell[data-embedded="true"] .header {
+  height: 60px;
+  padding-inline: 16px;
+  justify-content: space-between;
+}
+.shell[data-embedded="true"] .header img {
+  width: 112px;
+  height: auto;
+}
+.shell[data-embedded="true"] .main {
+  padding-top: 24px;
+}
