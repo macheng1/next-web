@@ -45,3 +45,8 @@ next-env.d.ts
 
 # WorkBuddy workspace data (会话记忆/日志，不进仓库)
 .workbuddy/
+
+# Foundation verification
+.superpowers/
+test-results/
+playwright-report/
