@@ -3,17 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev:local",
-    "build": "npm run build:production",
+    "dev": "pnpm run dev:local",
+    "build": "pnpm run build:production",
     "build:verify": "NEXT_DIST_DIR=.next-verify next build",
-    "start": "npm run start:production",
+    "start": "pnpm run start:production",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit",
     "test:browser": "playwright test",
     "check:production": "tsx scripts/check-production-config.ts",
-    "check": "npm run typecheck && npm run lint && npm test && npm run build:verify && npm run test:browser",
+    "check": "pnpm run typecheck && pnpm run lint && pnpm test && pnpm run build:verify && pnpm run test:browser",
     "build:local": "tsx scripts/with-environment.ts local build",
     "start:local": "tsx scripts/with-environment.ts local start",
     "check:env:local": "tsx scripts/with-environment.ts local check",
@@ -44,6 +44,17 @@
     "tailwindcss": "^4",
     "tsx": "4.23.15",
     "typescript": "^5",
-    "vitest": "5.0.3"
+    "vitest": "5.0.3",
+    "vite": "8.3.1"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "sharp"
+    ]
   }
 }

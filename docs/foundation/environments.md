@@ -10,12 +10,12 @@
 
 ## 使用
 
-- 本地启动：npm run dev（等同 dev:local）。本机 wx-backend 另行运行 npm run start:dev，默认 4000；未启动时会员功能和就绪检查不可用。
-- 本地网站连接开发后端：npm run dev:development。
-- 开发环境正式构建与运行：npm run build:development、npm run start:development。
-- 生产构建与运行：npm run build、npm run start（等同 build:production、start:production）。
-- 只核对配置：npm run check:env:local、check:env:development、check:env:production。
-- 完整自动验收仍用 npm run check，独立 .next-verify 和 mock 后端，不操作生产。
+- 本地启动：pnpm run dev（等同 dev:local）。本机 wx-backend 另行运行 pnpm run start:dev，默认 4000；未启动时会员功能和就绪检查不可用。
+- 本地网站连接开发后端：pnpm run dev:development。
+- 开发环境正式构建与运行：pnpm run build:development、pnpm run start:development。
+- 生产构建与运行：pnpm run build、pnpm run start（等同 build:production、start:production）。
+- 只核对配置：pnpm run check:env:local、check:env:development、check:env:production。
+- 完整自动验收仍用 pnpm run check，独立 .next-verify 和 mock 后端，不操作生产。
 
 复制 config/environments/对应环境.env.example 为同目录 对应环境.env，然后填写实际配置。私有配置文件已忽略。没有私有文件时使用对应模板；生产模板没有网站域名，不会自动猜域名或回退 localhost。
 
@@ -32,3 +32,9 @@ wx-backend 使用 NODE_ENV 加载其已有 .env.development/.env.production；�
 就绪检查只检查 wx-backend；配置、运行时和代理均不再提供第二套后端。
 
 生产构建与启动继续执行共享限流核验：RATE_LIMIT_MODE 及 RATE_LIMIT_VERIFICATION_FILE 有效、站点和后端 HTTPS。未完成部署保护不放行；详见 release-checklist.md。此配置检查不请求生产接口，也不代表部署或线上联调成功。
+
+## Vercel
+
+统一使用 package.json 指定的 pnpm@10.33.0 和 pnpm-lock.yaml。vercel.json 固定安装命令为 `corepack pnpm install --frozen-lockfile`，构建命令为 `corepack pnpm exec next build`，使用标准 .next 输出。Vercel 平台环境变量决定后端及网站环境；当前 dev 联调使用 DEPLOYMENT_ENV=development。
+
+正式生产仍应在发布流程中完成现有 check:production 配置与共享限流核验，不能把直接 next build 成功视为正式发布验收。

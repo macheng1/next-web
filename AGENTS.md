@@ -4,13 +4,13 @@
 
 - 技术框架：Next.js App Router、React、TypeScript、Tailwind CSS、Semi UI。
 - 新网站只连接 wx-backend，服务端 MEMBER_API_URL 保留 /api/v1。
-- 本地、开发、生产配置位于 config/environments；使用对应 npm 命令，构建产物独立。
+- 本地、开发、生产配置位于 config/environments；使用对应 pnpm 命令，构建产物独立。
 - 旧租户门户、旧企业注册页面和接口兼容层已删除，不恢复旧业务或旧后端配置。
 - 新业务以用户确认的新设计为准。公开买家注册、企业入驻和内部运营是独立功能，不能混用。
 
 ## 复用与实现
 
-- 中文回复，使用 npm 和锁文件。
+- 中文回复，使用 pnpm 和锁文件。
 - 优先使用 Semi UI；需要统一样式或组合时才做薄包装。
 - 请求统一使用 src/lib/http；服务器出站统一使用 src/lib/server/backend.ts，路径白名单。
 - 复用会话、来源校验、上传检查、语言、状态组件与元信息工厂，不另建重复实现。

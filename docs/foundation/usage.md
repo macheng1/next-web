@@ -2,7 +2,7 @@
 
 ## 架构与范围
 
-只对接 wx-backend，服务端 MEMBER_API_URL 带 /api/v1。三套环境见 [环境说明](environments.md)。本地 Node.js 22.12 以上，使用 npm ci 和锁文件。
+只对接 wx-backend，服务端 MEMBER_API_URL 带 /api/v1。三套环境见 [环境说明](environments.md)。本地 Node.js 22.12 以上，使用 pnpm install --frozen-lockfile 和锁文件。
 
 旧租户门户、旧产品/招聘/询价页面、旧登录注册表单、旧企业申请与短信注册流程、双后端配置及错误兼容层均已删除。旧路径返回 404，无旧地址跳转。保留首页基础状态，业务页面按照新设计另行开发。
 
@@ -36,4 +36,4 @@ getSession/requireSession 以后端 me 为身份依据。Cookie 为 HttpOnly，T
 
 /api/health/live 检查网站存活；/api/health/ready 仅检查 wx-backend /health，依赖失败返回 503。结果 no-store，不公开地址配置。
 
-logEvent 只输出白名单脱敏字段。线上日志、告警和备份由部署平台配置。npm run check 执行类型、规范、单元测试、独立生产构建和 Chrome 测试；不调用真实生产业务。
+logEvent 只输出白名单脱敏字段。线上日志、告警和备份由部署平台配置。pnpm run check 执行类型、规范、单元测试、独立生产构建和 Chrome 测试；不调用真实生产业务。

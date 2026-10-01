@@ -6,13 +6,13 @@ export default defineConfig({
   webServer: [
     {
       command:
-        "npx vite --config tests/browser/vite.config.mts --host 127.0.0.1 --port 4175 --strictPort",
+        "pnpm exec vite --config tests/browser/vite.config.mts --host 127.0.0.1 --port 4175 --strictPort",
       url: "http://127.0.0.1:4175",
       reuseExistingServer: !process.env.CI,
     },
     {
       command:
-        "NEXT_DIST_DIR=.next-verify DEPLOYMENT_ENV=test NEXT_PUBLIC_SITE_URL=http://127.0.0.1:4176 npx next start -p 4176",
+        "NEXT_DIST_DIR=.next-verify DEPLOYMENT_ENV=test NEXT_PUBLIC_SITE_URL=http://127.0.0.1:4176 pnpm exec next start -p 4176",
       url: "http://127.0.0.1:4176/api/health/live",
       reuseExistingServer: false,
     },

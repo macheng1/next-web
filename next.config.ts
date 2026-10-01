@@ -38,7 +38,6 @@ const nextConfig = {
   transpilePackages: [
     "@douyinfe/semi-ui-19",
     "@douyinfe/semi-icons",
-    "@douyinfe/semi-illustrations",
   ],
 };
 

@@ -13,17 +13,18 @@ jobs:
       NEXT_PUBLIC_SITE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm test
-      - run: npm run build:verify
-      - run: npx playwright install --with-deps chrome
-      - run: npm run test:browser
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run lint
+      - run: pnpm test
+      - run: pnpm run build:verify
+      - run: pnpm exec playwright install --with-deps chrome
+      - run: pnpm run test:browser
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
