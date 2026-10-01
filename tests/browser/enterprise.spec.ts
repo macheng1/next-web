@@ -178,3 +178,52 @@ test("mobile English form has no overflow and options failure can recover", asyn
     fullPage: true,
   });
 });
+
+for (const width of [320, 390, 768, 1280]) {
+  for (const locale of ["zh", "en"]) {
+    test(`enterprise responsive layout: ${locale} at ${width}px`, async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width, height: 844 });
+      await page
+        .context()
+        .addCookies([
+          { name: "NEXT_LOCALE", value: locale, url: "http://127.0.0.1:4176" },
+        ]);
+      await page.route("**/api/enterprise/applications/options", (r) =>
+        r.fulfill({ json: { code: 200, data: options } }),
+      );
+      await page.goto("/enterprise/apply?entry=miniapp");
+      const save = page.getByRole("button", {
+        name: locale === "zh" ? "保存草稿" : "Save draft",
+        exact: true,
+      });
+      const next = page.getByRole("button", {
+        name: locale === "zh" ? "下一步" : "Next",
+        exact: true,
+      });
+      await expect(next).toBeEnabled();
+      const a = await save.boundingBox();
+      const b = await next.boundingBox();
+      expect(a).not.toBeNull();
+      expect(b).not.toBeNull();
+      expect(Math.abs(a!.y - b!.y)).toBeLessThan(2);
+      expect(b!.x).toBeGreaterThanOrEqual(a!.x + a!.width);
+      expect(a!.height).toBeGreaterThanOrEqual(44);
+      expect(b!.height).toBeGreaterThanOrEqual(44);
+      const name = await page.locator("#contactName").boundingBox();
+      const phone = await page.locator("#contactPhone").boundingBox();
+      if (width < 640) expect(phone!.y).toBeGreaterThan(name!.y);
+      else expect(Math.abs(name!.y - phone!.y)).toBeLessThan(2);
+      expect(
+        await page.evaluate(
+          () => document.documentElement.scrollWidth <= innerWidth,
+        ),
+      ).toBe(true);
+      await page.screenshot({
+        path: `test-results/enterprise-tailwind-${locale}-${width}.png`,
+        fullPage: true,
+      });
+    });
+  }
+}

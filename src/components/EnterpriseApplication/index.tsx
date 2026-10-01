@@ -27,7 +27,6 @@ import {
 } from "@/src/lib/enterprise-onboarding/api";
 import zh from "@/src/dictionaries/zh.json";
 import en from "@/src/dictionaries/en.json";
-import styles from "./style.module.css";
 function Choice({
   id,
   value,
@@ -309,8 +308,11 @@ export function EnterpriseApplication({
     );
   }
   return (
-    <div className={styles.shell} data-embedded={embedded}>
-      <header className={styles.header}>
+    <div
+      className="min-h-dvh bg-[var(--paper)] text-[var(--ink-800)]"
+      data-embedded={embedded}
+    >
+      <header className="flex h-16 items-center gap-3 border-b border-[var(--ink-100)] bg-[var(--surface)] px-4 sm:h-[76px] sm:gap-6 sm:px-6 lg:px-[max(24px,calc((100vw-1120px)/2))] [&_img]:h-auto [&_img]:w-28 sm:[&_img]:w-[140px]">
         {embedded ? (
           <Image
             src="/brand/logo-horizontal.svg"
@@ -331,7 +333,10 @@ export function EnterpriseApplication({
           </Link>
         )}
         {!embedded && (
-          <nav className={styles.headerLinks} aria-label={c.home}>
+          <nav
+            className="ml-auto text-xs text-[var(--ink-600)] sm:text-sm"
+            aria-label={c.home}
+          >
             <Link href="/">{c.home}</Link>
           </nav>
         )}
@@ -346,14 +351,17 @@ export function EnterpriseApplication({
           {locale === "zh" ? "English" : "中文"}
         </Button>
       </header>
-      <div className={styles.layout}>
-        <main className={styles.main}>
-          <div className={styles.intro}>
+      <div className="min-h-[calc(100dvh-64px)] sm:min-h-[calc(100dvh-76px)]">
+        <main className="mx-auto w-full min-w-0 max-w-[920px] px-4 pt-6 pb-[max(24px,env(safe-area-inset-bottom))] sm:px-6 sm:py-7 lg:px-8 lg:pt-12 lg:pb-8">
+          <div className="mb-6 text-left sm:mb-9 sm:text-center [&_h1]:mb-2.5 [&_h1]:text-[26px] [&_h1]:leading-snug [&_h1]:font-bold sm:[&_h1]:text-3xl [&_p]:mt-3 [&_p]:max-w-[600px] [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-[var(--ink-500)] sm:[&_p]:mx-auto">
             <h1>{c.title}</h1>
             <p>{c.intro}</p>
           </div>
           {!receipt && (
-            <ol className={styles.steps} aria-label={c.title}>
+            <ol
+              className="mb-6 flex list-none gap-2 p-0 sm:mb-7 sm:gap-6 sm:px-6 [&_li]:flex [&_li]:min-w-0 [&_li]:flex-1 [&_li]:flex-col [&_li]:items-start [&_li]:gap-2 [&_li]:text-xs [&_li]:text-[var(--ink-500)] sm:[&_li]:flex-row sm:[&_li]:items-center sm:[&_li]:gap-2.5 sm:[&_li]:text-sm [&_li>span]:grid [&_li>span]:size-8 [&_li>span]:shrink-0 [&_li>span]:place-items-center [&_li>span]:rounded-full [&_li>span]:border [&_li>span]:border-[var(--ink-200)] [&_li>span]:bg-[var(--surface)] [&_li[data-active=true]]:font-semibold [&_li[data-active=true]]:text-[var(--jade-800)] [&_li[data-active=true]>span]:border-[var(--jade-700)] [&_li[data-active=true]>span]:bg-[var(--jade-700)] [&_li[data-active=true]>span]:text-white [&_li[data-done=true]>span]:border-[var(--jade-200)] [&_li[data-done=true]>span]:text-[var(--jade-700)]"
+              aria-label={c.title}
+            >
               {c.steps.map((s, i) => (
                 <li
                   key={s}
@@ -367,7 +375,10 @@ export function EnterpriseApplication({
               ))}
             </ol>
           )}
-          <section className={styles.card} aria-busy={busy}>
+          <section
+            className="rounded-2xl border border-[var(--ink-100)] bg-[var(--surface)] px-4 py-5 shadow-sm sm:p-6 lg:p-8 [&_h2]:mb-2 [&_h2]:text-xl [&_h2]:font-semibold"
+            aria-busy={busy}
+          >
             <h2 ref={heading} tabIndex={-1}>
               {receipt
                 ? c.submitted
@@ -377,7 +388,7 @@ export function EnterpriseApplication({
                     ? c.license
                     : c.review}
             </h2>
-            <p className={styles.subtitle}>
+            <p className="mb-5 text-sm leading-relaxed text-[var(--ink-500)] sm:mb-6">
               {receipt
                 ? c.submittedHint
                 : step === 0
@@ -387,17 +398,23 @@ export function EnterpriseApplication({
                     : c.reviewHint}
             </p>
             {alert && (
-              <div role="alert" className={styles.error}>
+              <div
+                role="alert"
+                className="mb-5 rounded-lg bg-[var(--error-bg)] p-3.5 text-sm text-[var(--error)]"
+              >
                 {alert}
               </div>
             )}
             {notice && (
-              <p role="status" className={styles.notice}>
+              <p
+                role="status"
+                className="mb-5 rounded-lg bg-[var(--jade-50)] p-3.5 text-[13px] text-[var(--jade-800)]"
+              >
                 {notice}
               </p>
             )}
             {receipt ? (
-              <div className={styles.success}>
+              <div className="py-6 text-[var(--jade-700)] [&_dl]:my-6 [&_dl]:text-sm [&_dl]:leading-relaxed [&_dd]:mt-2 [&_dd]:mb-5 [&_dd]:[overflow-wrap:anywhere] [&_dd]:text-[var(--ink-800)]">
                 <IconTickCircle size="extra-large" />
                 <dl>
                   <dt>{c.applicationId}</dt>
@@ -406,7 +423,10 @@ export function EnterpriseApplication({
                   <dd>{c[receipt.status]}</dd>
                 </dl>
                 {!embedded && (
-                  <Link href="/" className={styles.home}>
+                  <Link
+                    href="/"
+                    className="inline-block rounded-lg bg-[var(--jade-700)] px-6 py-3 text-sm text-white"
+                  >
                     {c.home}
                   </Link>
                 )}
@@ -414,7 +434,7 @@ export function EnterpriseApplication({
             ) : (
               <>
                 {draft && step === 0 && (
-                  <div className={styles.draft}>
+                  <div className="mb-5 flex flex-wrap items-center gap-2 rounded-lg border border-[var(--jade-200)] p-3 text-[13px] [&>span]:basis-full sm:[&>span]:basis-auto sm:[&>span]:flex-1">
                     <span>{c.draftFound}</span>
                     <Button
                       variant="ghost"
@@ -443,14 +463,17 @@ export function EnterpriseApplication({
                 >
                   {step === 0 && (
                     <>
-                      <div className={styles.scope}>
+                      <div className="mb-5 rounded-lg border border-[var(--jade-100)] bg-[var(--jade-50)] p-3 text-[13px] sm:mb-6 sm:p-4 [&_p]:mt-1.5 [&_p]:leading-relaxed [&_p]:text-[var(--ink-500)]">
                         <strong>
                           {c.country}: {c.countryName}
                         </strong>
                         <p>{c.scope}</p>
                       </div>
                       {optionsError && (
-                        <div role="alert" className={styles.error}>
+                        <div
+                          role="alert"
+                          className="mb-5 rounded-lg bg-[var(--error-bg)] p-3.5 text-sm text-[var(--error)]"
+                        >
                           {c.optionsError}{" "}
                           <Button
                             variant="ghost"
@@ -463,26 +486,28 @@ export function EnterpriseApplication({
                           </Button>
                         </div>
                       )}
-                      <div className={styles.grid}>
+                      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                         {field("companyName", true)}
                         {field("companyShortName")}
                         {field("creditCode", true)}
                         {field("cityName")}
                         {choice("industryCode")}
                         {choice("scaleCode")}
-                        <div className={styles.full}>
+                        <div className="col-span-full min-w-0">
                           {field("registeredAddress", true)}
                         </div>
                         {field("legalPerson")}
-                        <div className={styles.full}>
+                        <div className="col-span-full min-w-0">
                           {field("description", false, true)}
                         </div>
                       </div>
-                      <h3 className={styles.sectionTitle}>{c.contact}</h3>
-                      <div className={styles.grid}>
+                      <h3 className="mt-6 mb-4 border-t border-[var(--ink-100)] pt-5 text-base font-semibold sm:pt-6">
+                        {c.contact}
+                      </h3>
+                      <div className="grid min-w-0 grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
                         {field("contactName", true)}
                         {field("contactPhone", true)}
-                        <div className={styles.full}>
+                        <div className="col-span-full min-w-0">
                           {field("email", true)}
                         </div>
                       </div>
@@ -518,7 +543,7 @@ export function EnterpriseApplication({
                   )}
                   {step === 2 && (
                     <>
-                      <dl className={styles.review}>
+                      <dl className="mb-7 [&>div]:grid [&>div]:grid-cols-1 [&>div]:gap-1 [&>div]:border-b [&>div]:border-[var(--ink-100)] [&>div]:py-3 [&>div]:text-sm sm:[&>div]:grid-cols-[180px_minmax(0,1fr)] sm:[&>div]:gap-4 [&_dt]:text-[var(--ink-500)] [&_dd]:m-0 [&_dd]:[overflow-wrap:anywhere] [&_dd]:whitespace-pre-wrap">
                         {(Object.keys(values) as (keyof EnterpriseValues)[])
                           .filter((k) => values[k])
                           .map((k) => (
@@ -548,7 +573,7 @@ export function EnterpriseApplication({
                           <dd>{file?.originalName}</dd>
                         </div>
                       </dl>
-                      <div className={styles.sms}>
+                      <div className="mb-6 flex items-end gap-2 sm:gap-3 [&>div]:min-w-0 [&>div]:flex-1 [&>button]:shrink-0 [&>button]:px-3!">
                         <Field
                           id="smsCode"
                           label={c.code}
@@ -578,7 +603,7 @@ export function EnterpriseApplication({
                       </Checkbox>
                     </>
                   )}
-                  <div className={styles.actions}>
+                  <div className="mt-6 flex items-center justify-between gap-2 border-t border-[var(--ink-100)] pt-4 sm:mt-8 sm:gap-3 sm:pt-6 [&>button]:shrink-0 [&>button]:px-2! sm:[&>button]:px-5! [&>div]:flex [&>div]:min-w-0 [&>div]:flex-1 [&>div]:justify-end [&>div]:gap-2 sm:[&>div]:gap-3 [&>div>button]:min-w-0! [&>div>button]:whitespace-normal! [&>div>button]:px-3! sm:[&>div>button]:px-5!">
                     <Button
                       variant="ghost"
                       onClick={save}
@@ -611,7 +636,7 @@ export function EnterpriseApplication({
           </section>
           {!receipt && (
             <section
-              className={styles.guidance}
+              className="mt-5 border-b border-[var(--ink-200)] py-4 sm:mt-7 sm:py-6 [&_h2]:mb-3 [&_h2]:text-sm [&_h2]:font-semibold [&_ol]:m-0 [&_ol]:grid [&_ol]:list-none [&_ol]:grid-cols-1 [&_ol]:gap-2 [&_ol]:p-0 sm:[&_ol]:grid-cols-3 sm:[&_ol]:gap-5 [&_li]:flex [&_li]:gap-2.5 [&_li]:text-[13px] [&_li]:leading-relaxed [&_li]:text-[var(--ink-500)] [&_li>span]:font-semibold [&_li>span]:text-[var(--jade-700)]"
               aria-labelledby="application-guidance"
             >
               <h2 id="application-guidance">{c.noteTitle}</h2>
@@ -625,7 +650,7 @@ export function EnterpriseApplication({
               </ol>
             </section>
           )}
-          <p className={styles.privacy}>
+          <p className="mt-4 flex gap-2 text-xs leading-relaxed text-[var(--ink-500)] [&>span]:mt-1 [&>span]:shrink-0">
             <IconShield /> {c.privacy}
           </p>
         </main>
