@@ -1,3 +1,5 @@
+import { buildMetadata } from "@/src/lib/seo/metadata";
+import { isLocale } from "@/src/lib/i18n/locale";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // src/app/portal/[domain]/[lang]/layout.tsx
 import { NavBar } from "@/src/components/navbar";
@@ -31,4 +33,10 @@ export default async function PortalLayout({
       {data?.footer && <Footer {...data.footer} />}
     </div>
   );
+}
+
+export async function generateMetadata({params}:{params:Promise<{domain:string;lang:string}>}) {
+ const {domain,lang}=await params;const locale=isLocale(lang)?lang:"zh";const data=await fetchTenantData(domain);
+ const title=typeof data?.name==="string"?data.name:(await getDictionary(locale)).foundation.siteTitle;
+ return buildMetadata({title,description:typeof data?.description==="string"?data.description:title,path:`/portal/${encodeURIComponent(domain)}/${locale}`,locale,private:!data,alternates:{zh:`/portal/${encodeURIComponent(domain)}/zh`,en:`/portal/${encodeURIComponent(domain)}/en`}});
 }

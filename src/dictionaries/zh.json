@@ -236,6 +236,8 @@
       "session_expired": "登录已过期，请重新登录",
       "service_unavailable": "服务暂时不可用",
       "request_failed": "请求失败，请稍后重试"
-    }
+    },
+    "siteTitle": "商汇企业黄页",
+    "siteDescription": "让每一家制造企业，都被精准找到"
   }
 }

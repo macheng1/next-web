@@ -1,3 +1,5 @@
+import { buildMetadata } from "@/src/lib/seo/metadata";
+import { foundationCopy } from "@/src/lib/i18n/foundation";
 import { Providers } from "@/src/components/Providers";
 import { resolveLocale } from "@/src/lib/locale";
 import type { Metadata } from "next";
@@ -8,10 +10,10 @@ import "./globals.css";
 // 原先这里通过 next/font/google 加载 Geist / Geist_Mono，但两个 CSS 变量在项目里从未被引用，
 // 既违反「系统字体」要求，又让每次构建都必须能访问 Google Fonts。已移除。
 
-export const metadata: Metadata = {
-  title: "引智数链 PinLink",
-  description: "赋能制造律动,链接工业未来",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await resolveLocale(); const copy = foundationCopy(locale);
+  return buildMetadata({title:copy.siteTitle,description:copy.siteDescription,path:"/",locale});
+}
 
 export default async function RootLayout({
   children,
