@@ -21,11 +21,11 @@ export const fetchProductById = cache(
   async (domain: string, id: string): Promise<any> => {
     try {
       const product = await backendRequest<any>(
-        "portal", `/portal/${domain}/products/${id}`,
+        "portal",
+        `/portal/${domain}/products/${id}`,
       );
 
       if (product) {
-
         // 统一字段处理，提环
         const formattedSpecs = product.specs
           ? Object.entries(product.specs).map(([label, value]) => ({

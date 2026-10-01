@@ -57,3 +57,9 @@ export function pickMessage(payload: unknown, fallback: string): string {
 export function generateTraceId(): string {
   return crypto.randomUUID();
 }
+
+/** Accept UUID correlation IDs only; arbitrary header strings must not reach logs. */
+export function requestTraceId(headers: Headers): string {
+  const value = headers.get("x-trace-id");
+  return value && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value) ? value : generateTraceId();
+}
