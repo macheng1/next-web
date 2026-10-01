@@ -37,7 +37,7 @@ export function Providers({
     },
     () => locale,
   );
-  const pathLocale = pathname?.match(/^\/portal\/[^/]+\/(zh|en)(?:\/|$)/)?.[1];
+  const pathLocale = pathname?.split("/")[1];
   const activeLocale = isLocale(pathLocale) ? pathLocale : preferred;
   useEffect(() => {
     document.documentElement.lang = activeLocale;

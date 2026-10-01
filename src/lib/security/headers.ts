@@ -14,16 +14,16 @@ export function buildSecurityHeaders({
     ? nonce
       ? `'self' 'nonce-${nonce}' 'strict-dynamic'`
       : "'none'"
-    : "'self' 'unsafe-inline' 'unsafe-eval' https://webapi.amap.com https://a.amap.com";
+    : "'self' 'unsafe-inline' 'unsafe-eval'";
   const csp = [
     "default-src 'self'",
     `script-src ${script}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://macheng123.oss-cn-hangzhou.aliyuncs.com https://*.amap.com https://*.autonavi.com",
+    "img-src 'self' data: blob: https://macheng123.oss-cn-hangzhou.aliyuncs.com",
     "media-src 'self' https://macheng123.oss-cn-hangzhou.aliyuncs.com",
     "font-src 'self' data:",
-    `connect-src 'self' https://*.amap.com https://*.autonavi.com${production ? "" : " ws: http://localhost:*"}`,
-    "frame-src https://*.amap.com",
+    `connect-src 'self'${production ? "" : " ws: http://localhost:*"}`,
+    "frame-src 'none'",
     "worker-src 'self' blob:",
     "object-src 'none'",
     "base-uri 'self'",

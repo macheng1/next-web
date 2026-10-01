@@ -13,11 +13,7 @@ it("keeps member prefix and refuses arbitrary paths and redirects", async () => 
     return Response.json({ code: 200, data: { id: "one" } });
   });
   vi.stubGlobal("fetch", fake);
-  await backendFetch("member", "/web/members/me");
-  await expect(
-    backendFetch("member", "https://evil.test" as never),
-  ).rejects.toThrow();
-  await expect(
-    backendFetch("portal", "/web/members/me" as never),
-  ).rejects.toThrow();
+  await backendFetch("/web/members/me");
+  await expect(backendFetch("https://evil.test" as never)).rejects.toThrow();
+  await expect(backendFetch("/portal/acme/init" as never)).rejects.toThrow();
 });

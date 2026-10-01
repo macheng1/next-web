@@ -1,78 +1,33 @@
-# Portal Websites Agent 协议
+# 国际网站开发约定
 
-## 项目定位
+## 项目范围
 
-- 本项目是 WMS/制造企业门户网站，技术栈为 Next.js 16、React 19、TypeScript、Tailwind CSS、Semi UI、AMap。
-- 动态门户路由位于 `src/app/portal/[domain]/[lang]/`，支持租户域名和中英文语言路径。
-- 门户组件位于 `src/components/portal/`，通用导航和页脚位于 `src/components/navbar`、`src/components/footer`。
-- 字典位于 `src/dictionaries/`，门户 API 封装位于 `src/lib/portal-api.ts`。
-- 静态素材位于 `public/`，部署和安全头配置位于 `vercel.json`。
-- 门户站分端 PRD 位于 `docs/prd/`；开始页面、内容、SEO 或接口开发前，优先读取对应 PRD。
+- 技术框架：Next.js App Router、React、TypeScript、Tailwind CSS、Semi UI。
+- 新网站只连接 wx-backend，服务端 MEMBER_API_URL 保留 /api/v1。
+- 本地、开发、生产配置位于 config/environments；使用对应 npm 命令，构建产物独立。
+- 旧租户门户、旧企业注册页面和接口兼容层已删除，不恢复旧业务或旧后端配置。
+- 新业务以用户确认的新设计为准。公开买家注册、企业入驻和内部运营是独立功能，不能混用。
 
-## 推荐 Skills
+## 复用与实现
 
-- 从 PRD、品牌官网需求或页面说明拆门户任务时，使用 `$portal-prd-analysis`。
-- 设计首屏、导航、产品展示、关于、联系、招聘、新闻、地图和转化路径时，使用 `$portal-page-design`。
-- 根据 PRD 输出门户视觉 UI 方案、桌面端/移动端布局、配色、素材和审核点时，使用 `$portal-ui-design`。
-- 设计或调整 portal init、产品详情、询价、上传等接口对接时，使用 `$portal-api-integration`。
-- 实现 Next.js 门户页面、组件、字典、SEO、地图、表单和响应式样式时，使用 `$portal-feature-development`。
-- 处理 SEO、metadata、robots、sitemap、Open Graph 和中英文文案一致性时，使用 `$portal-seo-i18n`。
-- 完成功能后进行 lint、build、浏览器、响应式、SEO、多语言、表单和接口验证时，使用 `$portal-test-verification`。
-- 需要统一门户架构、动态路由、组件、字典、API 层、SEO 或样式规范时，使用 `$portal-architecture-governance`。
-- 完整门户需求通常按 `$portal-prd-analysis` -> `$portal-page-design` -> `$portal-ui-design` -> 用户审核 -> `$portal-api-integration` -> `$portal-seo-i18n` -> `$portal-feature-development` -> `$portal-test-verification` 推进。
-- 门户页面开发前必须先完成 UI 设计方案并经用户审核确认。
+- 中文回复，使用 npm 和锁文件。
+- 优先使用 Semi UI；需要统一样式或组合时才做薄包装。
+- 请求统一使用 src/lib/http；服务器出站统一使用 src/lib/server/backend.ts，路径白名单。
+- 复用会话、来源校验、上传检查、语言、状态组件与元信息工厂，不另建重复实现。
+- 服务端模块使用 server-only。身份、权限和数据隔离最终由后端校验。
+- 新页面或业务流程先完成设计并经用户确认，不能展示无法完成的功能入口。
+- 不做无关重构；新增文案同步维护 zh/en，保留键结构一致。
 
-## 常用命令
+## 安全与验证
 
-- 本项目使用 npm，因为存在 `package-lock.json`。
-- 常用命令：
-  - `npm install`
-  - `npm run dev`
-  - `npm run build`
-  - `npm run lint`
-  - `npm run start`
+- 密钥不入库、不进入 NEXT_PUBLIC_ 变量。私有环境文件已忽略。
+- 生产必须 HTTPS、真实站点域名及共享限流核验；遵循 docs/foundation/release-checklist.md。
+- 修改请求经过来源校验和请求体限制；上传校验格式、大小与实际内容。
+- 代码修改后执行 typecheck、lint、单元测试、隔离构建；交互改动补浏览器验证。
+- 检查桌面/手机、键盘、中文/英文、Cookie、失败状态与追踪信息。
+- 本地测试、CI 或进程启动不能替代实际部署域名及真实后端联调。
 
-## 代码规范
+## 交付
 
-- 默认使用中文回复。
-- 修改前先阅读相关页面、组件、字典、API 封装和环境变量。
-- 优先沿用现有动态路由、组件目录和字典结构。
-- 不做无关重构，不大面积格式化无关文件。
-- 新增文案必须同步维护 `zh.json` 和 `en.json`。
-- 门户接口优先复用 `src/lib/portal-api.ts`，不要在页面里重复封装 fetch。
-- 动态租户数据要有空值兜底，避免接口失败导致页面白屏。
-
-## 门户页面规范
-
-- 首屏必须明确品牌、业务和主要行动入口。
-- 页面要兼顾品牌展示、产品展示、联系询价和信任感。
-- 使用真实产品、工厂、地图、Logo、二维码等素材，不做空泛装饰。
-- 地图、表单、上传、二维码等交互要有 loading、错误和空状态。
-- 移动端和桌面端都要检查，避免文字溢出、图片遮挡和按钮不可点。
-
-## SEO 与多语言规范
-
-- 页面 title、description、metadata 要与页面内容一致。
-- robots、sitemap、站点域名要与 `NEXT_PUBLIC_SITE_URL` 对齐。
-- 中英文字典字段必须保持结构一致。
-- 新增图片应考虑 alt 或语义说明。
-- 不要误屏蔽 `/portal/[domain]/[lang]` 页面。
-
-## 环境变量与安全
-
-- 客户端变量必须使用 `NEXT_PUBLIC_` 前缀。
-- 服务端变量不要暴露给浏览器。
-- 不提交真实密钥；如果发现 `.env.local` 中有真实密钥，需要提醒用户处理。
-- AMap、hCaptcha、后端 API 地址等配置要区分本地、测试和生产。
-
-## 验证规范
-
-- 代码改动后优先运行 `npm run lint` 和 `npm run build`。
-- 页面改动应启动 dev server，并检查桌面和移动端。
-- 表单、上传、地图、portal init、产品详情等改动需要联调验证。
-- SEO/多语言改动需要检查 metadata、robots、字典和页面文案。
-
-## 最终回复
-
-- 简要说明完成了什么、修改了哪些文件、运行了哪些验证命令。
-- 如果有未验证项、接口联调风险、素材缺失或环境变量要求，必须明确指出。
+- 简述变更、验证结果及未完成的外部配置。
+- 用户未要求时不合并 main、不推送或部署。

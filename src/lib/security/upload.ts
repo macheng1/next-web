@@ -9,18 +9,6 @@ export const DEFAULT_UPLOAD_POLICY: UploadPolicy = {
   maxCount: 5,
   types: ["image/jpeg", "image/png", "image/webp", "application/pdf"],
 };
-export const INQUIRY_UPLOAD_POLICY: UploadPolicy = {
-  maxBytes: 5 * 1024 * 1024,
-  maxCount: 6,
-  types: [
-    ...DEFAULT_UPLOAD_POLICY.types,
-    "image/gif",
-    "application/zip",
-    "application/x-zip-compressed",
-    "application/dwg",
-    "application/octet-stream",
-  ],
-};
 export async function validateUpload(
   file: File,
   policy: UploadPolicy,
@@ -50,19 +38,5 @@ export async function validateUpload(
       ascii.slice(8, 12) === "WEBP";
   if (ext === "pdf")
     valid = file.type === "application/pdf" && ascii.startsWith("%PDF-");
-  if (ext === "gif")
-    valid = file.type === "image/gif" && /^(GIF87a|GIF89a)/.test(ascii);
-  if (ext === "zip")
-    valid =
-      [
-        "application/zip",
-        "application/x-zip-compressed",
-        "application/octet-stream",
-      ].includes(file.type) &&
-      (matches([80, 75, 3, 4]) || matches([80, 75, 5, 6]));
-  if (ext === "dwg")
-    valid =
-      ["application/dwg", "application/octet-stream"].includes(file.type) &&
-      /^AC10\d{2}/.test(ascii);
   if (!valid) throw new SecurityError(400, "upload_type");
 }

@@ -53,7 +53,7 @@ export function pickMessage(payload: unknown, fallback: string): string {
   return fallback;
 }
 
-/** 与 `portal-api` 保持同一套 trace 约定，便于后端串联日志 */
+/** 统一请求追踪编号，便于后端串联日志 */
 export function generateTraceId(): string {
   return crypto.randomUUID();
 }

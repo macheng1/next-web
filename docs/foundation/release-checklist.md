@@ -3,15 +3,15 @@
 ## 发布前
 
 - npm ci；npm run check 通过。构建验收用独立 .next-verify，正式发布使用 npm run build。
-- NEXT_PUBLIC_SITE_URL、MEMBER_API_URL 是实际 HTTPS 地址；旧门户启用时 API_URL 也必须配置 HTTPS 地址，DEPLOYMENT_ENV=production；敏感变量仅服务端，环境文件不入库。
+- NEXT_PUBLIC_SITE_URL、MEMBER_API_URL 是实际 HTTPS 地址，DEPLOYMENT_ENV=production；敏感变量仅服务端，环境文件不入库。
 - 反向代理限制请求体、连接时长和速率，覆盖转发头；验证实际域名不是只看进程启动。
-- 网关或后端对登录、短信、上传、询盘执行共享限流；至少用两个网站实例验证频率累计和 429，再记录 RATE_LIMIT_MODE。
+- 网关或后端对登录、找回密码、上传执行共享限流；至少用两个网站实例验证频率累计和 429，再记录 RATE_LIMIT_MODE。
 - 外部维护一份限流核验 JSON（不含密钥）：mode（gateway/backend）、verifiedAt（ISO 时间）、evidenceReference（规则和核验记录编号）。设置 RATE_LIMIT_VERIFICATION_FILE 为该文件绝对路径。npm run check:production 会检查结构、匹配模式和 30 天有效期；文件声明不能替代实际测试。
 - 核查修改接口外站 Origin 被拒绝，同站可提交；未经校验上传被拒绝，上传失败可重试。
 - 检查 HttpOnly/Secure/SameSite Cookie；会员失效、后端不可用、两会员切换时的数据隔离。
 - 用生产构建检查 CSP 无脚本通配/unsafe-eval，页面无 CSP 错误；地图如启用，验证实际厂商脚本链，不能以关闭 CSP 代替处理。
-- 桌面及手机检查中文/英文、键盘、错误重试与文件预览；确认旧业务是否需要另行翻译。
-- 检查 robots/sitemap/canonical：开发不收录、私有不收录、门户真实公开页面允许收录。
+- 桌面及手机检查中文/英文、键盘、错误重试与文件预览。
+- 检查 robots/sitemap/canonical：开发不收录、私有不收录、新网站真实公开页面允许收录。
 - 配置线上存活、就绪探针及脱敏日志收集；明确告警联系人和触发策略。
 - 后端负责人核查数据隔离、上传最终验证、邮箱投递、Token 撤销；运维核查数据库/文件备份并执行恢复演练。网站代码不会自动完成这些外部工作。
 

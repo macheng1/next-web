@@ -4,10 +4,7 @@ import { requestJson } from "../http/request";
 export async function checkReadiness(config: ServerConfig): Promise<boolean> {
   if (!config.memberApiUrl) return false;
   const results = await Promise.allSettled(
-    [
-      config.memberApiUrl,
-      ...(config.portalApiUrl ? [config.portalApiUrl] : []),
-    ].map((url) =>
+    [config.memberApiUrl].map((url) =>
       requestJson<{ status?: string }>(`${url}/health`, {
         timeoutMs: 3000,
         redirect: "error",

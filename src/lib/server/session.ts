@@ -53,7 +53,7 @@ export async function resolveSession(
 export const getSession = cache(async (): Promise<SessionResult> => {
   const token = (await cookies()).get(MEMBER_TOKEN_COOKIE)?.value;
   return resolveSession(token, (value) =>
-    backendRequest("member", "/web/members/me", {
+    backendRequest("/web/members/me", {
       headers: { authorization: `Bearer ${value}` },
     }),
   );

@@ -30,12 +30,12 @@ it("keeps language links to explicit paths and refuses absolute path injection",
   const meta = buildMetadata({
     title: "Directory",
     description: "Details",
-    path: "/portal/acme/en",
+    path: "/en",
     locale: "en",
-    alternates: { zh: "/portal/acme/zh", en: "/portal/acme/en" },
+    alternates: { zh: "/zh", en: "/en" },
   });
   expect(meta.alternates?.languages).toMatchObject({
-    en: "https://directory.test/portal/acme/en",
+    en: "https://directory.test/en",
   });
   expect(() =>
     buildMetadata({

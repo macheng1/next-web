@@ -1,18 +1,4 @@
-/**
- * 文件上传接口层（客户端）。
- *
- * 与 `auth-api.ts` 同一套路：前端只调 BFF 相对路径 `/api/upload/web-file`，
- * 真实后端路径（`/web/files/upload`）只留在 `src/app/api/upload/web-file/route.ts`。
- *
- * 后端契约：wx-backend `docs/api-fields.md` §7.5a（公开接口，无需登录）——
- * 之所以能匿名调，是因为企业注册时**还没有账号**，而营业执照要在提交注册申请时一并交上去。
- *
- * 错误语义直接复用 `auth-api.ts` 的 `AuthError`（`code: network | business`），
- * 表单那边的 `resolveAuthError()` 不用改就能处理上传失败的提示文案。
- */
-
-import { AuthError, legacyRequest } from "./auth-api";
-
+import { requestJson, HttpError } from "./http/request";
 /** 后端上传成功后返回的文件信息（`url` 直接填进 `businessLicenseUrl`） */
 export interface UploadedFile {
   /** 原始文件名，后端已做 UTF-8 修正（中文名正常） */
@@ -81,7 +67,11 @@ export async function uploadWebFile(
   formData.append("file", file);
   if (module) formData.append("module", module);
 
-  const data = await legacyRequest<UploadedFile>("/api/upload/web-file", { method: "POST", body: formData }, fallbackMessage);
-  if (!data?.url) throw new AuthError("business", fallbackMessage);
+  const data = await requestJson<UploadedFile>("/api/upload/web-file", {
+    method: "POST",
+    body: formData,
+    fallbackMessage,
+  });
+  if (!data?.url) throw new HttpError("business", fallbackMessage);
   return data;
 }

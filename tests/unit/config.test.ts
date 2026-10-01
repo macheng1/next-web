@@ -7,7 +7,7 @@ describe("environment boundaries", () => {
         .memberApiUrl,
     ).toBe("http://localhost:4000/api/v1");
   });
-  it("never substitutes the portal backend for members", () => {
+  it("never uses an obsolete backend variable for members", () => {
     expect(
       parseServerConfig({ API_URL: "http://localhost:3100/api" }).memberApiUrl,
     ).toBeUndefined();
@@ -17,8 +17,10 @@ describe("environment boundaries", () => {
       "NEXT_PUBLIC_SITE_URL",
     );
     expect(() =>
-      parseServerConfig({ API_URL: "https://user:secret@example.com/api" }),
-    ).toThrow("API_URL");
+      parseServerConfig({
+        MEMBER_API_URL: "https://user:secret@example.com/api/v1",
+      }),
+    ).toThrow("MEMBER_API_URL");
   });
   it("requires HTTPS in production and rejects invalid trusted origins", () => {
     expect(() =>

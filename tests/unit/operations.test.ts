@@ -32,7 +32,6 @@ it("readiness fails on missing or unhealthy dependencies but liveness stays up",
   expect(
     await checkReadiness({
       ...config,
-      portalApiUrl: "http://localhost:3100/api",
       memberApiUrl: "http://localhost:4000/api/v1",
     }),
   ).toBe(false);
@@ -42,7 +41,6 @@ it("release validation requires explicit shared protection evidence", () => {
   expect(validateProductionEnvironment({})).toContain("NEXT_PUBLIC_SITE_URL");
   const env = {
     NEXT_PUBLIC_SITE_URL: "https://site.test",
-    API_URL: "https://portal.test/api",
     MEMBER_API_URL: "https://members.test/api/v1",
     RATE_LIMIT_MODE: "gateway",
   };

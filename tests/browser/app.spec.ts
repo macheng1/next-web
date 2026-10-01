@@ -9,15 +9,15 @@ test("production build loads without CSP or hydration errors", async ({
     if (m.type() === "error") errors.push(m.text());
   });
   await page.setExtraHTTPHeaders({ "accept-language": "en" });
-  const response = await page.goto("/login");
+  const response = await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  await expect(page.getByRole("textbox").first()).toBeVisible();
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
   const csp = response!.headers()["content-security-policy"];
   expect(csp).toContain("'nonce-");
   expect(csp).not.toContain("unsafe-eval");
   expect(errors).toEqual([]);
   await page.screenshot({
-    path: "test-results/production-login.png",
+    path: "test-results/production-foundation.png",
     fullPage: true,
   });
 });
@@ -37,76 +37,17 @@ test("health and mutation origin checks on real routes", async ({
   expect(bad.status()).toBe(403);
 });
 
-test("client language navigation updates document and API locale", async ({
-  page,
-}) => {
-  await page.goto("/portal/review/zh");
-  await expect(page.locator("html")).toHaveAttribute("lang", "zh");
-  await page.locator("nav button").filter({ hasText: "ZH" }).click();
-  await page.getByRole("button", { name: "English", exact: true }).click();
-  await expect(page).toHaveURL(/\/portal\/review\/en$/);
-  await expect(page.locator("html")).toHaveAttribute("lang", "en");
-  const body = await page.evaluate(async () =>
-    (
-      await fetch("/api/auth/me", {
-        headers: { "x-ui-locale": document.documentElement.lang },
-      })
-    ).json(),
-  );
-  expect(body.message).toMatch(/session|sign in/i);
-});
-test("portal child pages have distinct canonical and language links", async ({
+test("retired pages and portal endpoints return 404 without legacy redirects", async ({
   request,
 }) => {
-  for (const suffix of [
-    "products",
-    "products/part-1",
-    "contact",
-    "aboutus",
-    "jobs",
+  for (const path of [
+    "/portal/acme/zh",
+    "/login",
+    "/register",
+    "/api/portal/acme/inquiry",
+    "/api/upload/fileList",
   ]) {
-    const response = await request.get(`/portal/review/en/${suffix}`);
-    const html = await response.text();
-    expect(html).toContain(
-      `rel="canonical" href="http://127.0.0.1:4176/portal/review/en/${suffix}"`,
-    );
-    expect(html).toContain(
-      `hrefLang="zh" href="http://127.0.0.1:4176/portal/review/zh/${suffix}"`,
-    );
+    const response = await request.get(path, { maxRedirects: 0 });
+    expect(response.status(), path).toBe(404);
   }
-});
-test("existing OSS hero media is allowed by CSP", async ({ page }) => {
-  const violations: string[] = [];
-  await page.addInitScript(() => {
-    window.addEventListener("securitypolicyviolation", (e) => {
-      if (e.violatedDirective === "media-src")
-        document.body.dataset.mediaViolation = e.blockedURI;
-    });
-  });
-  await page.route(
-    "https://macheng123.oss-cn-hangzhou.aliyuncs.com/review.mp4",
-    (route) =>
-      route.fulfill({ status: 200, body: "fixture", contentType: "video/mp4" }),
-  );
-  page.on("console", (m) => {
-    if (
-      m.type() === "error" &&
-      /Content Security Policy.*media|media.*Content Security Policy/i.test(
-        m.text(),
-      )
-    )
-      violations.push(m.text());
-  });
-  const mediaRequest = page.waitForRequest(
-    "https://macheng123.oss-cn-hangzhou.aliyuncs.com/review.mp4",
-  );
-  const response = await page.goto("/portal/review/en");
-  expect(response!.headers()["content-security-policy"]).toContain(
-    "media-src 'self' https://macheng123.oss-cn-hangzhou.aliyuncs.com",
-  );
-  await mediaRequest;
-  expect(
-    await page.locator("body").getAttribute("data-media-violation"),
-  ).toBeNull();
-  expect(violations).toEqual([]);
 });

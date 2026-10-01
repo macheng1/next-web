@@ -1,6 +1,5 @@
 export type DeploymentEnv = "local" | "development" | "test" | "production";
 export interface ServerConfig {
-  portalApiUrl?: string;
   memberApiUrl?: string;
   siteUrl: string;
   deploymentEnv: DeploymentEnv;
@@ -61,9 +60,6 @@ export function parseServerConfig(
     deploymentEnv,
     siteUrl,
     trustedOrigins: [...new Set([siteUrl, ...extraOrigins])],
-    portalApiUrl: env.API_URL
-      ? address(env.API_URL, "API_URL", production)
-      : undefined,
     memberApiUrl: env.MEMBER_API_URL
       ? address(env.MEMBER_API_URL, "MEMBER_API_URL", production)
       : undefined,

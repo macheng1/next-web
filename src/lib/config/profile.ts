@@ -29,7 +29,6 @@ export function resolveEnvironmentProfile(
   const config = parseServerConfig(env);
   return {
     ...env,
-    API_URL: config.portalApiUrl || "",
     MEMBER_API_URL: config.memberApiUrl!,
     NEXT_PUBLIC_SITE_URL: config.siteUrl,
     DEPLOYMENT_ENV: profile,

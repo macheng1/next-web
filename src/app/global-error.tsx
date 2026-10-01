@@ -32,7 +32,7 @@ function subscribe(callback: () => void) {
 function browserLocale(): Locale {
   const parts = location.pathname.split("/");
   return resolveLanguage({
-    pathLocale: parts[1] === "portal" ? parts[3] : undefined,
+    pathLocale: parts[1],
     cookieLocale: document.cookie.match(/(?:^|;\s*)NEXT_LOCALE=([^;]+)/)?.[1],
     acceptLanguage: navigator.language,
   });

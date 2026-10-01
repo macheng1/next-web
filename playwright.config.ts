@@ -5,11 +5,6 @@ export default defineConfig({
   use: { channel: "chrome", baseURL: "http://127.0.0.1:4175" },
   webServer: [
     {
-      command: "node tests/browser/mock-backend.mjs",
-      url: "http://127.0.0.1:4177/health",
-      reuseExistingServer: false,
-    },
-    {
       command:
         "npx vite --config tests/browser/vite.config.mts --host 127.0.0.1 --port 4175 --strictPort",
       url: "http://127.0.0.1:4175",
@@ -17,7 +12,7 @@ export default defineConfig({
     },
     {
       command:
-        "API_URL=http://127.0.0.1:4177/api MEMBER_API_URL=http://127.0.0.1:4177/api/v1 NEXT_DIST_DIR=.next-verify DEPLOYMENT_ENV=test NEXT_PUBLIC_SITE_URL=http://127.0.0.1:4176 npx next start -p 4176",
+        "NEXT_DIST_DIR=.next-verify DEPLOYMENT_ENV=test NEXT_PUBLIC_SITE_URL=http://127.0.0.1:4176 npx next start -p 4176",
       url: "http://127.0.0.1:4176/api/health/live",
       reuseExistingServer: false,
     },

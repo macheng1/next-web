@@ -584,62 +584,6 @@ html body {
 }
 
 /* ============================================================
-   8. 签名组件 · 信用条 CreditBar —— 规范 §08
-   四段 4px 高、2px 圆角、5px 间距；填充玉青 500 → 300 渐变，空段 ink-200。
-   ============================================================ */
-.shhy-credit-seg {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-.shhy-credit .semi-progress {
-  width: 100%;
-  margin: 0;
-}
-
-.shhy-credit .semi-progress-track {
-  height: var(--shhy-credit-h, 4px);
-  border-radius: calc(var(--shhy-credit-h, 4px) / 2);
-  background-color: var(--ink-200);
-  overflow: hidden;
-}
-
-.shhy-credit .semi-progress-track-inner {
-  border-radius: calc(var(--shhy-credit-h, 4px) / 2);
-  background-color: var(--jade-500);
-  background-image: linear-gradient(90deg, var(--jade-500), var(--jade-300));
-}
-
-/* ============================================================
-   9. 企业卡片 EnterpriseCard —— 规范 §07
-   卡片结构：Logo → 名称 → 元信息 → 标签 → 信用条 → 行动。
-   ============================================================ */
-.shhy-ecard {
-  max-width: 340px;
-}
-
-.shhy-ecard .semi-card {
-  border-color: var(--ink-200);
-  border-radius: var(--r-lg);
-  background-color: var(--surface);
-  box-shadow: var(--sh-1);
-  transition:
-    box-shadow var(--t-base) var(--ease-out),
-    border-color var(--t-base) var(--ease-out),
-    transform var(--t-base) var(--ease-out);
-}
-
-.shhy-ecard--clickable {
-  cursor: pointer;
-}
-
-.shhy-ecard--clickable:hover .semi-card {
-  border-color: var(--jade-200);
-  box-shadow: var(--sh-3);
-  transform: translateY(-2px);
-}
-
-/* ============================================================
    10. 居中弹窗 Modal —— 规范 §07
    宽 330px，遮罩统一 --veil 不叠加模糊；无 × 按钮，必须二选一（合规红线）。
    ============================================================ */

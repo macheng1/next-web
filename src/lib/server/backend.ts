@@ -6,23 +6,14 @@ export type BackendPath =
   | "/web/auth/login"
   | "/web/auth/forgot-password"
   | "/web/auth/reset-password"
-  | "/web/members/register"
   | "/web/members/me"
   | "/web/members/me/change-password"
-  | "/sms/send-code"
-  | `/web/files/upload?module=${"enterprise-license" | "enterprise"}`
-  | "/upload/public/fileList"
-  | `/portal/${string}/init`
-  | `/portal/${string}/products/${string}`
-  | `/portal/${string}/inquiry`;
-function destination(backend: "portal" | "member", path: BackendPath): string {
+  | `/web/files/upload?module=${"enterprise-license" | "enterprise"}`;
+function destination(path: BackendPath): string {
   const valid =
-    backend === "member"
-      ? /^(?:\/web\/auth\/(?:login|forgot-password|reset-password)|\/web\/members\/(?:register|me|me\/change-password)|\/sms\/send-code|\/web\/files\/upload\?module=(?:enterprise-license|enterprise))$/
-      : /^(?:\/upload\/public\/fileList|\/portal\/[A-Za-z0-9._-]+\/(?:init|inquiry|products\/[A-Za-z0-9_-]+))$/;
+    /^(?:\/web\/auth\/(?:login|forgot-password|reset-password)|\/web\/members\/(?:me|me\/change-password)|\/web\/files\/upload\?module=(?:enterprise-license|enterprise))$/;
   if (!valid.test(path)) throw new Error("Unsupported backend path");
-  const config = getServerConfig();
-  const base = backend === "member" ? config.memberApiUrl : config.portalApiUrl;
+  const base = getServerConfig().memberApiUrl;
   if (!base) throw new Error("Backend is not configured");
   return base + path;
 }
@@ -44,20 +35,18 @@ function outbound(options: RequestOptions): RequestOptions {
   return { ...options, headers, redirect: "error", cache: "no-store" };
 }
 export function backendFetch(
-  backend: "portal" | "member",
   path: BackendPath,
   options: RequestOptions = {},
 ): Promise<Response> {
   return Promise.resolve().then(() =>
-    fetchResponse(destination(backend, path), outbound(options)),
+    fetchResponse(destination(path), outbound(options)),
   );
 }
 export function backendRequest<T>(
-  backend: "portal" | "member",
   path: BackendPath,
   options: RequestOptions = {},
 ): Promise<T> {
   return Promise.resolve().then(() =>
-    requestJson<T>(destination(backend, path), outbound(options)),
+    requestJson<T>(destination(path), outbound(options)),
   );
 }
