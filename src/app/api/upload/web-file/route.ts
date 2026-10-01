@@ -46,7 +46,7 @@ const ALLOWED_TYPES = [
 /** 后端 ErrorCode.PARAM_INVALID —— 本仓其它 BFF 也用同一个码表达「参数/形状不对」 */
 const PARAM_INVALID = 10003;
 
-function paramInvalid(message: string) {
+function paramInvalid(request: Request, message: string) {
   return apiJson(request, { code: PARAM_INVALID, message }, { status: 400 });
 }
 
@@ -74,19 +74,19 @@ export async function POST(request: NextRequest) {
       String(formData.get("module") ?? "").trim() || DEFAULT_MODULE;
 
     if (!(file instanceof File) || file.size === 0) {
-      return paramInvalid("请选择要上传的文件");
+      return paramInvalid(request, "请选择要上传的文件");
     }
     if (!isAllowedModule(uploadModule)) {
-      return paramInvalid(`module 只允许 ${ALLOWED_MODULES.join(" / ")}`);
+      return paramInvalid(request, `module 只允许 ${ALLOWED_MODULES.join(" / ")}`);
     }
     if (file.size > MAX_FILE_SIZE) {
-      return paramInvalid(
+      return paramInvalid(request, 
         `文件「${file.name}」超过 ${MAX_FILE_SIZE_MB}MB，请压缩后重试`,
       );
     }
     // 浏览器没识别出类型时 file.type 会是空串，一并挡在这里
     if (!ALLOWED_TYPES.includes(file.type)) {
-      return paramInvalid("仅支持 JPG / PNG / WebP / PDF 格式的文件");
+      return paramInvalid(request, "仅支持 JPG / PNG / WebP / PDF 格式的文件");
     }
 
     await validateUpload(file, DEFAULT_UPLOAD_POLICY);

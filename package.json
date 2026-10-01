@@ -10,7 +10,8 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "@amap/amap-jsapi-loader": "^1.0.1",

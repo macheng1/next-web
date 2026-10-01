@@ -1,9 +1,9 @@
 import 'server-only';
-import { NextResponse, type NextResponseInit } from 'next/server';
+import { NextResponse } from 'next/server';
 import zh from '@/src/dictionaries/zh.json';
 import en from '@/src/dictionaries/en.json';
 import { resolveLanguage } from '../i18n/locale';
-export function apiJson(request:Request,payload:unknown,init:NextResponseInit={}):NextResponse {
+export function apiJson(request:Request,payload:unknown,init:ResponseInit={}):NextResponse {
  const status=init.status || 200;let result=payload;
  if(payload && typeof payload==='object') {
   const body=payload as Record<string,unknown>;const failed=status>=400 || (body.code!=null && Number(body.code)!==200);

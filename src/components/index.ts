@@ -27,7 +27,7 @@
  * 4. **文案**：组件内不内嵌业务文案，全部由调用方传入并带中性默认值
  *    （`enterLabel`、`verifiedLabel`、`emptyText`、`phoneLabel`…）。
  * 5. **红线不开可配项**：标签不可点（`Label` 不提供任何点击回调）、
- *    弹窗无 × 按钮必须二选一（`closable` 恒为 false）、交互元素触碰下限 46px。
+ *    隐私告知的选择规则由 PrivacyNotice 单独管理、交互元素触碰下限 46px。
  *    这些是规范约束而非配置项，需要变更请先改规范。
  *
  * 已实现（Semi 基座 → 商汇组件）：
@@ -90,3 +90,8 @@ export {
   type UploaderProps,
   type UploaderState,
 } from "./Uploader";
+
+export { Providers } from "./Providers";
+export { StatusState, type StatusKind } from "./StatusState";
+export { FormError } from "./FormError";
+export { PrivacyNotice } from "./PrivacyNotice";

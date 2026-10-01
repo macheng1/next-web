@@ -1,3 +1,4 @@
+import { Providers } from "@/src/components/Providers";
 import { resolveLocale } from "@/src/lib/locale";
 import type { Metadata } from "next";
 import "./globals.css";
@@ -20,7 +21,7 @@ export default async function RootLayout({
   const locale = await resolveLocale();
   return (
     <html lang={locale}>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased"><Providers locale={locale}>{children}</Providers></body>
     </html>
   );
 }

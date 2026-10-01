@@ -8,7 +8,7 @@ export default async function ProductDetailPage({
 }: {
   params: Promise<{ domain: string; lang: string; id: string }>;
 }) {
-  const { domain, lang, id } = await params;
+  const { domain, id } = await params;
   const product = await fetchProductById(domain, id); // 获取单个产品详情
 
   if (!product) return <div className="p-20 text-center">产品信息不存在</div>;

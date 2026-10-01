@@ -24,6 +24,9 @@ export interface ModalProps {
    * 隐私授权类弹窗必须保持 false —— 规范要求「无 × 按钮，必须二选一」。
    */
   dismissOnVeil?: boolean;
+  closable?: boolean;
+  maskClosable?: boolean;
+  closeOnEsc?: boolean;
   /** 挂在 `.semi-modal` 上的类名 */
   className?: string;
   /** 挂在内容层（`.semi-modal-content`）上的类名，会覆盖宽度等几何 */
@@ -32,29 +35,7 @@ export interface ModalProps {
   contentStyle?: CSSProperties;
 }
 
-/**
- * 弹窗 Modal · 规范 §07 组件库 —— 基于 Semi `Modal` 封装
- *
- * 分工原则：**纯告知或确认**的浮层走居中弹窗；**需要输入**的走底部半屏（`Sheet`）——
- * 键盘顶起不遮挡、拇指够得到。
- *
- * - 宽度默认 `330px`（可传 `width` 覆盖），左右各留 24px 安全边距由 Semi 负责。
- * - 遮罩统一 `rgba(8,40,36,.44)`，**不叠加模糊**，保持浅色主题的通透感。
- * - **关闭无 × 按钮，必须二选一**（`closable={false}`）；退路写在正文里（`subtitle` / `children`）。
- * - 按钮区各占 50%、同为 47px 高，视觉等权（见 `ModalActions`）。
- * - 焦点与滚动交给 Semi：打开时焦点移入弹窗、关闭后归还触发元素、Tab 不逃逸背景、
- *   背景滚动锁定 —— 不再需要自研 focus trap。
- *
- * 灵活位：`width` / `contentClassName` 改几何，`icon` 加标题图标，
- * `title` / `subtitle` / `children` / `footer` 任意节点，四个区块都可以只给一部分。
- * 不开放的是 `closable` —— 这条是合规红线，不是可配项。
- *
- * 合规红线（规范 §07，不可协商）：
- * ① 拒绝授权与同意授权的按钮必须等宽等高、同样的视觉可发现性，禁止缩小、置灰或改文案为「稍后再说」；
- * ② 隐私弹窗的告知项要逐条列出信息类型与用途，不用「可能收集相关信息」这类笼统表述；
- * ③ 必须先弹窗再调用隐私接口，不允许先调用后追授权；
- * ④ 用户撤回授权后，功能降级要给出明确说明，而不是静默失败。
- */
+/** Thin Semi Modal wrapper; privacy choices belong to PrivacyNotice. */
 export function Modal({
   open,
   onClose,
@@ -64,7 +45,10 @@ export function Modal({
   children,
   footer,
   width = 330,
-  dismissOnVeil = false,
+  dismissOnVeil = true,
+  closable = true,
+  maskClosable,
+  closeOnEsc,
   className,
   contentClassName,
   contentStyle,
@@ -83,9 +67,9 @@ export function Modal({
       }
       centered
       width={width}
-      closable={false}
-      maskClosable={dismissOnVeil}
-      closeOnEsc={dismissOnVeil}
+      closable={closable}
+      maskClosable={maskClosable ?? dismissOnVeil}
+      closeOnEsc={closeOnEsc ?? dismissOnVeil}
       // 显式传 footer：Semi 用「props 里是否存在 footer 键」来决定
       // 走自定义底栏还是默认「取消 / 确定」，传 undefined 即渲染空底栏。
       footer={footer}
@@ -141,7 +125,7 @@ export function ModalActions({
         variant="ghost"
         className="shhy-modal-action shhy-modal-action--confirm"
         loading={confirmLoading}
-        onClick={onConfirm ?? onCancel}
+        onClick={onConfirm} disabled={!onConfirm}
       >
         {confirmText}
       </Button>

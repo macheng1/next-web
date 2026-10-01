@@ -1,8 +1,8 @@
 // src/components/portal/molecules/JobItem.tsx
-import { Button, Space, Typography } from "@douyinfe/semi-ui-19";
+import { Button, Typography } from "@douyinfe/semi-ui-19";
 import { IconPhone } from "@douyinfe/semi-icons";
 
-export const JobItem = ({ job, dict }: { job: any; dict: any }) => (
+export const JobItem = ({ job, dict }: { job: {position:string;salary?:string|null;count?:number}; dict: {count:string;applyBtn:string} }) => (
   <div className="flex flex-col md:flex-row justify-between items-start md:items-center p-6 border-b border-gray-100 hover:bg-blue-50/30 transition-colors">
     <div className="mb-4 md:mb-0">
       <Typography.Title heading={5} className="text-slate-900">
