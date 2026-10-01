@@ -309,10 +309,10 @@ export function EnterpriseApplication({
   }
   return (
     <div
-      className="min-h-dvh bg-[var(--paper)] text-[var(--ink-800)]"
+      className="group min-h-dvh bg-[var(--paper)] text-[var(--ink-800)]"
       data-embedded={embedded}
     >
-      <header className="flex h-16 items-center gap-3 border-b border-[var(--ink-100)] bg-[var(--surface)] px-4 sm:h-[76px] sm:gap-6 sm:px-6 lg:px-[max(24px,calc((100vw-1120px)/2))] [&_img]:h-auto [&_img]:w-28 sm:[&_img]:w-[140px]">
+      <header className="flex h-16 max-sm:group-data-[embedded=true]:h-14 items-center gap-3 border-b border-[var(--ink-100)] bg-[var(--surface)] px-4 sm:h-[76px] sm:gap-6 sm:px-6 lg:px-[max(24px,calc((100vw-1120px)/2))] [&_img]:h-auto [&_img]:w-28 sm:[&_img]:w-[140px]">
         {embedded ? (
           <Image
             src="/brand/logo-horizontal.svg"
@@ -342,6 +342,7 @@ export function EnterpriseApplication({
         )}
         <Button
           variant="ghost"
+          className="ml-auto"
           onClick={() => {
             document.cookie = `NEXT_LOCALE=${locale === "zh" ? "en" : "zh"}; Path=/; SameSite=Lax`;
             window.dispatchEvent(new Event("languagechange"));
@@ -352,14 +353,14 @@ export function EnterpriseApplication({
         </Button>
       </header>
       <div className="min-h-[calc(100dvh-64px)] sm:min-h-[calc(100dvh-76px)]">
-        <main className="mx-auto w-full min-w-0 max-w-[920px] px-4 pt-6 pb-[max(24px,env(safe-area-inset-bottom))] sm:px-6 sm:py-7 lg:px-8 lg:pt-12 lg:pb-8">
-          <div className="mb-6 text-left sm:mb-9 sm:text-center [&_h1]:mb-2.5 [&_h1]:text-[26px] [&_h1]:leading-snug [&_h1]:font-bold sm:[&_h1]:text-3xl [&_p]:mt-3 [&_p]:max-w-[600px] [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-[var(--ink-500)] sm:[&_p]:mx-auto">
+        <main className="mx-auto w-full min-w-0 max-w-[920px] px-4 pt-6 max-sm:group-data-[embedded=true]:pt-4 pb-[max(24px,env(safe-area-inset-bottom))] sm:px-6 sm:py-7 lg:px-8 lg:pt-12 lg:pb-8">
+          <div className="mb-6 max-sm:group-data-[embedded=true]:mb-4 max-sm:group-data-[embedded=true]:[&_h1]:text-xl max-sm:group-data-[embedded=true]:[&_p]:mt-2 max-sm:group-data-[embedded=true]:[&_p]:text-[13px] text-left sm:mb-9 sm:text-center [&_h1]:mb-2.5 [&_h1]:text-[26px] [&_h1]:leading-snug [&_h1]:font-bold sm:[&_h1]:text-3xl [&_p]:mt-3 [&_p]:max-w-[600px] [&_p]:text-sm [&_p]:leading-relaxed [&_p]:text-[var(--ink-500)] sm:[&_p]:mx-auto">
             <h1>{c.title}</h1>
             <p>{c.intro}</p>
           </div>
           {!receipt && (
             <ol
-              className="mb-6 flex list-none gap-2 p-0 sm:mb-7 sm:gap-6 sm:px-6 [&_li]:flex [&_li]:min-w-0 [&_li]:flex-1 [&_li]:flex-col [&_li]:items-start [&_li]:gap-2 [&_li]:text-xs [&_li]:text-[var(--ink-500)] sm:[&_li]:flex-row sm:[&_li]:items-center sm:[&_li]:gap-2.5 sm:[&_li]:text-sm [&_li>span]:grid [&_li>span]:size-8 [&_li>span]:shrink-0 [&_li>span]:place-items-center [&_li>span]:rounded-full [&_li>span]:border [&_li>span]:border-[var(--ink-200)] [&_li>span]:bg-[var(--surface)] [&_li[data-active=true]]:font-semibold [&_li[data-active=true]]:text-[var(--jade-800)] [&_li[data-active=true]>span]:border-[var(--jade-700)] [&_li[data-active=true]>span]:bg-[var(--jade-700)] [&_li[data-active=true]>span]:text-white [&_li[data-done=true]>span]:border-[var(--jade-200)] [&_li[data-done=true]>span]:text-[var(--jade-700)]"
+              className="mb-6 max-sm:group-data-[embedded=true]:mb-4 max-sm:group-data-[embedded=true]:[&_li]:flex-row max-sm:group-data-[embedded=true]:[&_li]:items-center max-sm:group-data-[embedded=true]:[&_li]:gap-1.5 max-sm:group-data-[embedded=true]:[&_li>span]:size-7 flex list-none gap-2 p-0 sm:mb-7 sm:gap-6 sm:px-6 [&_li]:flex [&_li]:min-w-0 [&_li]:flex-1 [&_li]:flex-col [&_li]:items-start [&_li]:gap-2 [&_li]:text-xs [&_li]:text-[var(--ink-500)] sm:[&_li]:flex-row sm:[&_li]:items-center sm:[&_li]:gap-2.5 sm:[&_li]:text-sm [&_li>span]:grid [&_li>span]:size-8 [&_li>span]:shrink-0 [&_li>span]:place-items-center [&_li>span]:rounded-full [&_li>span]:border [&_li>span]:border-[var(--ink-200)] [&_li>span]:bg-[var(--surface)] [&_li[data-active=true]]:font-semibold [&_li[data-active=true]]:text-[var(--jade-800)] [&_li[data-active=true]>span]:border-[var(--jade-700)] [&_li[data-active=true]>span]:bg-[var(--jade-700)] [&_li[data-active=true]>span]:text-white [&_li[data-done=true]>span]:border-[var(--jade-200)] [&_li[data-done=true]>span]:text-[var(--jade-700)]"
               aria-label={c.title}
             >
               {c.steps.map((s, i) => (

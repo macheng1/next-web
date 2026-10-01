@@ -203,6 +203,20 @@ for (const width of [320, 390, 768, 1280]) {
         exact: true,
       });
       await expect(next).toBeEnabled();
+      const language = await page.locator("header button").boundingBox();
+      const header = await page.locator("header").boundingBox();
+      const padding = await page
+        .locator("header")
+        .evaluate((el) => parseFloat(getComputedStyle(el).paddingRight));
+      expect(
+        Math.abs(
+          header!.x + header!.width - language!.x - language!.width - padding,
+        ),
+      ).toBeLessThan(2);
+      if (width < 640 && locale === "zh") {
+        const card = await page.locator("main > section").first().boundingBox();
+        expect(card!.y).toBeLessThan(245);
+      }
       const a = await save.boundingBox();
       const b = await next.boundingBox();
       expect(a).not.toBeNull();
