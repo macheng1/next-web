@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
+import { MobileDebugConsole } from "@/src/components/MobileDebugConsole";
 import { isLocale } from "@/src/lib/i18n/locale";
 import { LocaleProvider } from "@douyinfe/semi-ui-19";
 import zhCN from "@douyinfe/semi-ui-19/lib/es/locale/source/zh_CN";
@@ -45,6 +46,7 @@ export function Providers({
   return (
     <LanguageContext.Provider value={activeLocale}>
       <LocaleProvider locale={activeLocale === "en" ? enUS : zhCN}>
+        <MobileDebugConsole />
         {children}
       </LocaleProvider>
     </LanguageContext.Provider>

@@ -37,3 +37,7 @@ getSession/requireSession 以后端 me 为身份依据。Cookie 为 HttpOnly，T
 /api/health/live 检查网站存活；/api/health/ready 仅检查 wx-backend /health，依赖失败返回 503。结果 no-store，不公开地址配置。
 
 logEvent 只输出白名单脱敏字段。线上日志、告警和备份由部署平台配置。pnpm run check 执行类型、规范、单元测试、独立生产构建和 Chrome 测试；不调用真实生产业务。
+
+## 手机调试
+
+页面地址带 `debug=1` 时动态加载 vConsole。例如 `/enterprise/apply?entry=miniapp&debug=1`。点击绿色 vConsole 按钮可查看 Console 和 Network，上传失败时查看 `/api/upload/web-file` 的状态码与响应。移除参数并重新打开网页即可关闭，不保存调试开关。
