@@ -1,6 +1,7 @@
+import { apiJson } from "@/src/lib/server/api-response";
 import { clientIp, guardMutation, readJsonBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { readBizCode } from "@/src/lib/api-envelope";
 
 /**
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
     const apiUrl = process.env.MEMBER_API_URL;
     if (!apiUrl) {
       console.error("SMS route error: MEMBER_API_URL is not configured");
-      return NextResponse.json({ error: "服务器配置错误" }, { status: 500 });
+      return apiJson(request, { error: "服务器配置错误" }, { status: 500 });
     }
 
     const body = (await readJsonBody(request)) as Record<
@@ -42,19 +43,19 @@ export async function POST(request: NextRequest) {
       unknown
     > | null;
     if (!body || typeof body !== "object") {
-      return NextResponse.json({ error: "请求参数不合法" }, { status: 400 });
+      return apiJson(request, { error: "请求参数不合法" }, { status: 400 });
     }
 
     // 只做「形状」校验：这个号能不能收短信、有没有被占用，一律交给后端
     const phone = typeof body.phone === "string" ? body.phone.trim() : "";
-    if (!phone) return NextResponse.json({ error: "请输入手机号码" }, { status: 400 });
+    if (!phone) return apiJson(request, { error: "请输入手机号码" }, { status: 400 });
     if (!PHONE_RE.test(phone)) {
-      return NextResponse.json({ error: "手机号码格式不正确" }, { status: 400 });
+      return apiJson(request, { error: "手机号码格式不正确" }, { status: 400 });
     }
 
     const scene = typeof body.scene === "string" ? body.scene : "";
     if (!(ENABLED_SCENES as readonly string[]).includes(scene)) {
-      return NextResponse.json({ error: "不支持的验证码场景" }, { status: 400 });
+      return apiJson(request, { error: "不支持的验证码场景" }, { status: 400 });
     }
 
     const headersList = request.headers;
@@ -78,14 +79,14 @@ export async function POST(request: NextRequest) {
 
     // 两条都要判：参数类失败是 200 + 10003，鉴权/限流类才透传真实状态码
     if (!response.ok || (bizCode !== null && bizCode !== 200)) {
-      return NextResponse.json(
+      return apiJson(request, 
         { code: bizCode ?? response.status, message: "验证码发送失败，请稍后重试" },
         { status: response.status },
       );
     }
 
-    return NextResponse.json(payloadBody);
+    return apiJson(request, payloadBody);
   } catch (error) {
-    return mutationFailure(error);
+    return mutationFailure(error, request);
   }
 }

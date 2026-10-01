@@ -1,3 +1,4 @@
+import { resolveLocale } from "@/src/lib/locale";
 import type { Metadata } from "next";
 import "./globals.css";
 
@@ -11,13 +12,14 @@ export const metadata: Metadata = {
   description: "赋能制造律动,链接工业未来",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await resolveLocale();
   return (
-    <html lang="en">
+    <html lang={locale}>
       <body className="antialiased">{children}</body>
     </html>
   );

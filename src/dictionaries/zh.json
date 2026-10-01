@@ -210,5 +210,32 @@
     "support": "技术支持由 引智数链 提供",
     "copyRight": "© 2026 无锡元思科技 版权所有",
     "qrcode": "微信扫码联系工厂"
+  },
+  "foundation": {
+    "retry": "重试",
+    "close": "关闭",
+    "cancel": "取消",
+    "confirm": "确认",
+    "backHome": "返回首页",
+    "loading": "正在加载",
+    "empty": "暂无内容",
+    "error": "加载失败，请稍后重试",
+    "forbidden": "暂时没有访问权限",
+    "sessionExpired": "登录已过期，请重新登录",
+    "notFound": "页面不存在",
+    "serviceUnavailable": "服务暂时不可用",
+    "errors": {
+      "untrusted_origin": "请求来源不被允许",
+      "protection_unconfigured": "服务暂时不可用",
+      "rate_limited": "操作过于频繁，请稍后重试",
+      "body_too_large": "提交内容过大",
+      "upload_size": "文件为空或超过大小限制",
+      "upload_type": "文件格式或内容不符合要求",
+      "server_error": "服务暂时不可用，请稍后重试",
+      "invalid_input": "请检查输入内容",
+      "session_expired": "登录已过期，请重新登录",
+      "service_unavailable": "服务暂时不可用",
+      "request_failed": "请求失败，请稍后重试"
+    }
   }
 }

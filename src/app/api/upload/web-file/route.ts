@@ -1,7 +1,8 @@
+import { apiJson } from "@/src/lib/server/api-response";
 import { validateUpload, DEFAULT_UPLOAD_POLICY } from "@/src/lib/security/upload";
 import { clientIp, guardMutation, readFormBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { BIZ_CODE_OK, readBizCode } from "@/src/lib/api-envelope";
 
 /**
@@ -46,7 +47,7 @@ const ALLOWED_TYPES = [
 const PARAM_INVALID = 10003;
 
 function paramInvalid(message: string) {
-  return NextResponse.json({ code: PARAM_INVALID, message }, { status: 400 });
+  return apiJson(request, { code: PARAM_INVALID, message }, { status: 400 });
 }
 
 function isAllowedModule(value: string): value is (typeof ALLOWED_MODULES)[number] {
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
       console.error(
         "Upload route error: MEMBER_API_URL is not configured",
       );
-      return NextResponse.json({ message: "服务器配置错误" }, { status: 500 });
+      return apiJson(request, { message: "服务器配置错误" }, { status: 500 });
     }
 
     const formData = await readFormBody(request, 11 * 1024 * 1024);
@@ -117,14 +118,14 @@ export async function POST(request: NextRequest) {
 
     // §1.3：业务失败也可能是 HTTP 200，成败必须看 body.code
     if (!response.ok || (bizCode !== null && bizCode !== BIZ_CODE_OK)) {
-      return NextResponse.json(
+      return apiJson(request, 
         { code: bizCode ?? response.status, message: "文件上传失败，请稍后重试" },
         { status: response.status },
       );
     }
 
-    return NextResponse.json(payload);
+    return apiJson(request, payload);
   } catch (error) {
-    return mutationFailure(error);
+    return mutationFailure(error, request);
   }
 }

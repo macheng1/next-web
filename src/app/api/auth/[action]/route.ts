@@ -1,8 +1,9 @@
+import { apiJson } from "@/src/lib/server/api-response";
 import { MemoryRateLimiter } from "@/src/lib/security/rate-limit";
 import { createHash } from "node:crypto";
 import { clientIp, guardMutation, readJsonBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import {
   MEMBER_TOKEN_COOKIE,
   MEMBER_TOKEN_MAX_AGE,
@@ -180,7 +181,7 @@ export async function POST(
     const { action } = await params;
 
     if (!isAuthAction(action)) {
-      return NextResponse.json({ error: "不支持的认证动作" }, { status: 404 });
+      return apiJson(request, { error: "不支持的认证动作" }, { status: 404 });
     }
 
     // ⚠️ 本项目同时对接两套后端，别混用：
@@ -192,7 +193,7 @@ export async function POST(
       console.error(
         `Auth route error: MEMBER_API_URL is not configured (${action})`,
       );
-      return NextResponse.json({ error: "服务器配置错误" }, { status: 500 });
+      return apiJson(request, { error: "服务器配置错误" }, { status: 500 });
     }
 
     const headersList = request.headers;
@@ -205,12 +206,12 @@ export async function POST(
     > | null;
 
     if (!body || typeof body !== "object") {
-      return NextResponse.json({ error: "请求参数不合法" }, { status: 400 });
+      return apiJson(request, { error: "请求参数不合法" }, { status: 400 });
     }
 
     const built = buildPayload(action, body);
     if ("error" in built) {
-      return NextResponse.json({ error: built.error }, { status: 400 });
+      return apiJson(request, { error: built.error }, { status: 400 });
     }
     const { payload } = built;
 
@@ -218,7 +219,7 @@ export async function POST(
       action === "forgot-password" &&
       !(await forgotStore.check(createHash("sha256").update(`${clientIP}:${text(body.email)}`).digest("hex"))).allowed
     ) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "重置邮件请求过于频繁，请 60 秒后再试" },
         { status: 429 },
       );
@@ -227,7 +228,7 @@ export async function POST(
     // 只有改密需要登录态。其余四个动作都是公开接口（注册 / 登录 / 找回密码）。
     const memberToken = request.cookies.get(MEMBER_TOKEN_COOKIE)?.value;
     if (action === "change-password" && !memberToken) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "登录状态已过期，请重新登录" },
         { status: 401 },
       );
@@ -251,7 +252,7 @@ export async function POST(
 
     // 两条都要判：参数类失败是 200+10003，鉴权类失败是 401+40001（见文件头说明）
     if (!response.ok || (bizCode !== null && bizCode !== 200)) {
-      return NextResponse.json(
+      return apiJson(request, 
         { code: bizCode ?? response.status, message: "认证失败，请稍后重试" },
         { status: response.status },
       );
@@ -272,7 +273,7 @@ export async function POST(
 
       if (!accessToken) {
         console.error("Auth route error: login response has no accessToken");
-        return NextResponse.json(
+        return apiJson(request, 
           { error: "服务器响应异常，请稍后重试" },
           { status: 502 },
         );
@@ -297,7 +298,7 @@ export async function POST(
       tokenCookie = { value: "", maxAge: 0 };
     }
 
-    const next = NextResponse.json(out, { headers: { "Cache-Control": "no-store" } });
+    const next = apiJson(request, out, { headers: { "Cache-Control": "no-store" } });
     if (tokenCookie) {
       next.cookies.set(
         MEMBER_TOKEN_COOKIE,
@@ -307,6 +308,6 @@ export async function POST(
     }
     return next;
   } catch (error) {
-    return mutationFailure(error);
+    return mutationFailure(error, request);
   }
 }

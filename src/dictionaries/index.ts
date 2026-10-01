@@ -2,7 +2,8 @@
 import "server-only"; // 确保这些字典只在服务端加载，不占用客户端体积
 
 // 1. 定义支持的语言类型
-export type Locale = "zh" | "en";
+import type { Locale } from "../lib/i18n/locale";
+export type { Locale } from "../lib/i18n/locale";
 
 // 2. 定义字典对象的结构（保持动态导入以实现懒加载）
 const dictionaries = {

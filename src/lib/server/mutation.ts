@@ -1,5 +1,6 @@
 import 'server-only';
 import { NextResponse } from 'next/server';
+import { apiJson } from './api-response';
 import { getServerConfig } from './config';
 import { assertTrustedOrigin, SecurityError } from '../security/origin';
 import { MemoryRateLimiter } from '../security/rate-limit';
@@ -28,7 +29,7 @@ export async function readJsonBody(request:Request):Promise<Record<string,unknow
 export async function readFormBody(request:Request,maxBytes:number):Promise<FormData> {
  const bytes=await readBoundedBody(request,maxBytes);return new Response(bytes as BodyInit,{headers:{'content-type':request.headers.get('content-type') || ''}}).formData();
 }
-export function mutationFailure(error:unknown):NextResponse {
+export function mutationFailure(error:unknown,request?:Request):NextResponse {
  const status=error instanceof SecurityError?error.status:500;const key=error instanceof SecurityError?error.code:'server_error';
- return NextResponse.json({code:status,message:key,errorKey:key},{status,headers:{'Cache-Control':'no-store',...(status===429?{'Retry-After':'60'}:{})}});
+ return (request ? (payload:unknown,init:ResponseInit)=>apiJson(request,payload,init) : NextResponse.json)({code:status,message:key,errorKey:key},{status,headers:{'Cache-Control':'no-store',...(status===429?{'Retry-After':'60'}:{})}});
 }

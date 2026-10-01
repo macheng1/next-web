@@ -1,7 +1,8 @@
+import { apiJson } from "@/src/lib/server/api-response";
 import { validateUpload, INQUIRY_UPLOAD_POLICY } from "@/src/lib/security/upload";
 import { clientIp, guardMutation, readFormBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const MAX_FILE_COUNT = 6;
@@ -37,24 +38,24 @@ export async function POST(request: NextRequest) {
     const files = formData.getAll("file");
 
     if (!files || files.length === 0) {
-      return NextResponse.json({ error: "请选择要上传的文件" }, { status: 400 });
+      return apiJson(request, { error: "请选择要上传的文件" }, { status: 400 });
     }
     if (files.length > MAX_FILE_COUNT) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "单次最多上传 6 个文件" },
         { status: 400 },
       );
     }
 
     for (const file of files) {
-      if (!(file instanceof File)) return NextResponse.json({error: "Invalid file"}, {status:400});
+      if (!(file instanceof File)) return apiJson(request, {error: "Invalid file"}, {status:400});
       await validateUpload(file, INQUIRY_UPLOAD_POLICY);
 
       const extension = file.name.includes(".")
         ? `.${file.name.split(".").pop()?.toLowerCase()}`
         : "";
       if (file.size > MAX_FILE_SIZE) {
-        return NextResponse.json(
+        return apiJson(request, 
           { error: `文件 "${file.name}" 超过 5MB 限制` },
           { status: 400 },
         );
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
         !ALLOWED_TYPES.includes(file.type) ||
         !ALLOWED_EXTENSIONS.includes(extension)
       ) {
-        return NextResponse.json(
+        return apiJson(request, 
           { error: `不支持的文件类型: ${file.name}` },
           { status: 400 },
         );
@@ -72,7 +73,7 @@ export async function POST(request: NextRequest) {
 
     const apiUrl = process.env.API_URL;
     if (!apiUrl) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "服务器配置错误，请联系管理员" },
         { status: 500 },
       );
@@ -90,16 +91,16 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "文件上传失败，请稍后重试" },
         { status: response.status },
       );
     }
 
     const data = await response.json();
-    if (data?.code != null && Number(data.code) !== 200) return NextResponse.json({code: data.code, message: "Upload failed"}, {status:400});
-    return NextResponse.json(data);
+    if (data?.code != null && Number(data.code) !== 200) return apiJson(request, {code: data.code, message: "Upload failed"}, {status:400});
+    return apiJson(request, data);
   } catch (error) {
-    return mutationFailure(error);
+    return mutationFailure(error, request);
   }
 }

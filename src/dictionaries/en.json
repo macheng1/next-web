@@ -210,5 +210,32 @@
     "support": "Technical Support by YZ Link",
     "copyRight": "© 2026 YuanSi Tech. All Rights Reserved.",
     "qrcode": "Scan to contact us via WeChat"
+  },
+  "foundation": {
+    "retry": "Retry",
+    "close": "Close",
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "backHome": "Back to home",
+    "loading": "Loading",
+    "empty": "No content yet",
+    "error": "Unable to load. Please try again.",
+    "forbidden": "You do not have access",
+    "sessionExpired": "Your session has expired. Please sign in again.",
+    "notFound": "Page not found",
+    "serviceUnavailable": "Service temporarily unavailable",
+    "errors": {
+      "untrusted_origin": "This request origin is not allowed",
+      "protection_unconfigured": "Service temporarily unavailable",
+      "rate_limited": "Too many requests. Please try again later.",
+      "body_too_large": "The submitted content is too large",
+      "upload_size": "The file is empty or exceeds the size limit",
+      "upload_type": "The file type or contents are not supported",
+      "server_error": "Service temporarily unavailable. Please try again.",
+      "invalid_input": "Please check your input",
+      "session_expired": "Your session has expired. Please sign in again.",
+      "service_unavailable": "Service temporarily unavailable",
+      "request_failed": "Request failed. Please try again."
+    }
   }
 }

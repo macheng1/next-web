@@ -1,9 +1,10 @@
+import { apiJson } from "@/src/lib/server/api-response";
 import { SuccessfulSubmissions, MemoryRateLimiter } from "@/src/lib/security/rate-limit";
 import { readBizCode } from "@/src/lib/api-envelope";
 import { createHash } from "node:crypto";
 import { clientIp, guardMutation, readJsonBody, mutationFailure } from "@/src/lib/server/mutation";
 import { backendFetch } from "@/src/lib/server/backend";
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
 const RATE_LIMIT_WINDOW = 60 * 1000;
 const RATE_LIMIT_MAX = 10;
@@ -44,45 +45,45 @@ export async function POST(
     const now = Date.now();
     const body = await readJsonBody(request);
 
-    if (!body) return NextResponse.json({error:"Invalid body"},{status:400});
+    if (!body) return apiJson(request, {error:"Invalid body"},{status:400});
 
     if (!(await rateLimitStore.check(`${domain}:${clientIP}`, now)).allowed) {
-      return NextResponse.json({ error: "提交过于频繁，请稍后再试" }, { status: 429 });
+      return apiJson(request, { error: "提交过于频繁，请稍后再试" }, { status: 429 });
     }
 
     if (normalizeText(body.website)) {
-      return NextResponse.json({ error: "提交失败，请稍后重试" }, { status: 400 });
+      return apiJson(request, { error: "提交失败，请稍后重试" }, { status: 400 });
     }
 
     const formStartedAt = Number(body.formStartedAt || 0);
     if (!formStartedAt || now - formStartedAt < MIN_SUBMIT_SECONDS * 1000) {
-      return NextResponse.json({ error: "提交过快，请稍后再试" }, { status: 400 });
+      return apiJson(request, { error: "提交过快，请稍后再试" }, { status: 400 });
     }
 
     // 基础验证，字段需要和前台询价表单及后端 CreateInquiryDto 对齐。
     if (!body.name || !body.phone || !body.message) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "缺少必填字段" },
         { status: 400 }
       );
     }
 
     if (String(body.name).length > 20) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "姓名不能超过20字" },
         { status: 400 }
       );
     }
 
     if (String(body.message).length > 500) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "内容不能超过500字" },
         { status: 400 }
       );
     }
 
     if (isDuplicateSubmission(getDuplicateKey(clientIP, domain, body), now)) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "请勿重复提交相同需求" },
         { status: 409 }
       );
@@ -91,7 +92,7 @@ export async function POST(
     // 转发到真实后端 API
     const apiUrl = process.env.API_URL;
     if (!apiUrl) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "服务器配置错误" },
         { status: 500 }
       );
@@ -113,7 +114,7 @@ export async function POST(
     });
 
     if (!response.ok) {
-      return NextResponse.json(
+      return apiJson(request, 
         { error: "提交失败，请稍后重试" },
         { status: response.status }
       );
@@ -121,10 +122,10 @@ export async function POST(
 
     const data = await response.json();
     const code = readBizCode(data);
-    if (code !== null && code !== 200) return NextResponse.json({code, message: "Submit failed"}, {status:400});
+    if (code !== null && code !== 200) return apiJson(request, {code, message: "Submit failed"}, {status:400});
     recentSubmissionStore.mark(getDuplicateKey(clientIP, domain, body), now);
-    return NextResponse.json(data);
+    return apiJson(request, data);
   } catch (error) {
-    return mutationFailure(error);
+    return mutationFailure(error, request);
   }
 }
