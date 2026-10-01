@@ -1,3 +1,4 @@
+import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 
@@ -77,7 +78,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const response = await fetch(`${apiUrl}/upload/public/fileList`, {
+    const response = await backendFetch("portal", "/upload/public/fileList", {
       method: "POST",
       headers: {
         "X-Forwarded-For": clientIP,
@@ -88,9 +89,9 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
+      
       return NextResponse.json(
-        { error: errorText || "文件上传失败，请稍后重试" },
+        { error: "文件上传失败，请稍后重试" },
         { status: response.status },
       );
     }

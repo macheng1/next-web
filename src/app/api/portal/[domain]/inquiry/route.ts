@@ -1,3 +1,4 @@
+import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 
@@ -123,7 +124,7 @@ export async function POST(
     const submitBody = { ...body };
     delete submitBody.website;
     delete submitBody.formStartedAt;
-    const response = await fetch(`${apiUrl}/portal/${domain}/inquiry`, {
+    const response = await backendFetch("portal", `/portal/${domain}/inquiry`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -143,8 +144,8 @@ export async function POST(
 
     const data = await response.json();
     return NextResponse.json(data);
-  } catch (error) {
-    console.error("Inquiry route error:", error);
+  } catch {
+    console.error("Inquiry route failed");
     return NextResponse.json(
       { error: "服务器错误，请稍后重试" },
       { status: 500 }

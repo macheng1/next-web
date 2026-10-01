@@ -55,5 +55,5 @@ export function pickMessage(payload: unknown, fallback: string): string {
 
 /** 与 `portal-api` 保持同一套 trace 约定，便于后端串联日志 */
 export function generateTraceId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substring(2, 15)}`;
+  return crypto.randomUUID();
 }

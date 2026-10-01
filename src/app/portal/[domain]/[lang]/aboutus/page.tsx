@@ -1,7 +1,7 @@
 // src/app/portal/[domain]/[lang]/about/page.tsx
 
 import { AboutUsContent } from "@/src/components/AboutUsContent";
-import { fetchTenantData } from "@/src/lib/portal-api";
+import { fetchTenantData } from "@/src/lib/server/portal";
 import { Metadata } from "next";
 
 export async function generateMetadata({

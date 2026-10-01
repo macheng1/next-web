@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import { IconArrowRight, IconMapPin } from "@douyinfe/semi-icons";
-import { fetchTenantData } from "@/src/lib/portal-api";
+import { fetchTenantData } from "@/src/lib/server/portal";
 import { formatJobPublishTime } from "@/src/lib/formatJobPublishTime";
 
 type PortalJob = {

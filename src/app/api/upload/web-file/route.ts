@@ -1,3 +1,4 @@
+import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { BIZ_CODE_OK, readBizCode } from "@/src/lib/api-envelope";
@@ -55,10 +56,10 @@ export async function POST(request: NextRequest) {
   try {
     // 会员侧接口（企业资质上传）指向 wx-backend；门户访客附件走 `/api/upload/fileList`
     // → API_URL（m-wms-backend）。两者是不同后端，别混用。详见 .env.example。
-    const apiUrl = process.env.MEMBER_API_URL || process.env.API_URL;
+    const apiUrl = process.env.MEMBER_API_URL;
     if (!apiUrl) {
       console.error(
-        "Upload route error: MEMBER_API_URL / API_URL is not configured",
+        "Upload route error: MEMBER_API_URL is not configured",
       );
       return NextResponse.json({ message: "服务器配置错误" }, { status: 500 });
     }
@@ -95,8 +96,8 @@ export async function POST(request: NextRequest) {
       headersList.get("x-real-ip") ||
       "unknown";
 
-    const response = await fetch(
-      `${apiUrl}/web/files/upload?module=${encodeURIComponent(uploadModule)}`,
+    const response = await backendFetch(
+      "member", `/web/files/upload?module=${uploadModule}`,
       {
         method: "POST",
         // 不要自己写 Content-Type：FormData 需要由运行时补 multipart boundary
@@ -116,14 +117,14 @@ export async function POST(request: NextRequest) {
     // §1.3：业务失败也可能是 HTTP 200，成败必须看 body.code
     if (!response.ok || (bizCode !== null && bizCode !== BIZ_CODE_OK)) {
       return NextResponse.json(
-        payload ?? { message: "文件上传失败，请稍后重试" },
+        { code: bizCode ?? response.status, message: "文件上传失败，请稍后重试" },
         { status: response.status },
       );
     }
 
     return NextResponse.json(payload);
-  } catch (error) {
-    console.error("Upload route error:", error);
+  } catch {
+    console.error("Upload route failed");
     return NextResponse.json(
       { message: "服务器错误，请稍后重试" },
       { status: 500 },

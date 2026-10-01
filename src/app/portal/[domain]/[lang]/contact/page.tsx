@@ -1,5 +1,5 @@
 import { ContactUsContent } from "@/src/components/ContactUsContent";
-import { fetchTenantData } from "@/src/lib/portal-api";
+import { fetchTenantData } from "@/src/lib/server/portal";
 import { Metadata } from "next";
 
 export async function generateMetadata({

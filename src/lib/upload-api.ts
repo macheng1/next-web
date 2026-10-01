@@ -11,13 +11,7 @@
  * 表单那边的 `resolveAuthError()` 不用改就能处理上传失败的提示文案。
  */
 
-import { AuthError } from "./auth-api";
-import {
-  BIZ_CODE_OK,
-  generateTraceId,
-  pickMessage,
-  readBizCode,
-} from "./api-envelope";
+import { AuthError, legacyRequest } from "./auth-api";
 
 /** 后端上传成功后返回的文件信息（`url` 直接填进 `businessLicenseUrl`） */
 export interface UploadedFile {
@@ -87,38 +81,7 @@ export async function uploadWebFile(
   formData.append("file", file);
   if (module) formData.append("module", module);
 
-  let response: Response;
-  try {
-    response = await fetch("/api/upload/web-file", {
-      method: "POST",
-      headers: {
-        "x-trace-id": generateTraceId(),
-        "x-source-type": "portal-web",
-      },
-      // 不要手动设 Content-Type：multipart 的 boundary 必须由运行时生成
-      body: formData,
-    });
-  } catch {
-    throw new AuthError("network", fallbackMessage);
-  }
-
-  const body = await response.json().catch(() => null);
-  const bizCode = readBizCode(body);
-
-  // §1.3：业务失败也可能是 HTTP 200，成败必须看 body.code
-  if (!response.ok || (bizCode !== null && bizCode !== BIZ_CODE_OK)) {
-    throw new AuthError(
-      "business",
-      pickMessage(body, fallbackMessage),
-      response.status,
-      bizCode ?? undefined,
-    );
-  }
-
-  const data = (body as { data?: UploadedFile } | null)?.data;
-  if (!data?.url) {
-    // 响应结构不对（比如被网关改写）：当业务失败处理，别把 undefined 塞进表单
-    throw new AuthError("business", fallbackMessage, response.status, bizCode ?? undefined);
-  }
+  const data = await legacyRequest<UploadedFile>("/api/upload/web-file", { method: "POST", body: formData }, fallbackMessage);
+  if (!data?.url) throw new AuthError("business", fallbackMessage);
   return data;
 }

@@ -1,3 +1,4 @@
+import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { readBizCode } from "@/src/lib/api-envelope";
@@ -29,9 +30,9 @@ const BACKEND_PATH = "/sms/send-code";
 
 export async function POST(request: NextRequest) {
   try {
-    const apiUrl = process.env.MEMBER_API_URL || process.env.API_URL;
+    const apiUrl = process.env.MEMBER_API_URL;
     if (!apiUrl) {
-      console.error("SMS route error: MEMBER_API_URL / API_URL is not configured");
+      console.error("SMS route error: MEMBER_API_URL is not configured");
       return NextResponse.json({ error: "服务器配置错误" }, { status: 500 });
     }
 
@@ -62,7 +63,7 @@ export async function POST(request: NextRequest) {
       "unknown";
     const userAgent = headersList.get("user-agent") || "";
 
-    const response = await fetch(`${apiUrl}${BACKEND_PATH}`, {
+    const response = await backendFetch("member", BACKEND_PATH, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -80,14 +81,14 @@ export async function POST(request: NextRequest) {
     // 两条都要判：参数类失败是 200 + 10003，鉴权/限流类才透传真实状态码
     if (!response.ok || (bizCode !== null && bizCode !== 200)) {
       return NextResponse.json(
-        payloadBody ?? { error: "验证码发送失败，请稍后重试" },
+        { code: bizCode ?? response.status, message: "验证码发送失败，请稍后重试" },
         { status: response.status },
       );
     }
 
     return NextResponse.json(payloadBody);
-  } catch (error) {
-    console.error("SMS route error:", error);
+  } catch {
+    console.error("SMS route failed");
     return NextResponse.json({ error: "服务器错误，请稍后重试" }, { status: 500 });
   }
 }

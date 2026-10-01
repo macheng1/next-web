@@ -2,7 +2,7 @@
 // src/app/portal/[domain]/[lang]/layout.tsx
 import { NavBar } from "@/src/components/navbar";
 import { Footer } from "@/src/components/footer";
-import { fetchTenantData } from "@/src/lib/portal-api";
+import { fetchTenantData } from "@/src/lib/server/portal";
 import { getDictionary } from "@/src/dictionaries";
 
 export default async function PortalLayout({

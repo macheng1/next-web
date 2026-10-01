@@ -31,12 +31,14 @@
  * 拿不准怎么把异常转成提示文案时，用 `resolveAuthError()`。
  */
 
-import {
-  BIZ_CODE_OK,
-  generateTraceId,
-  pickMessage,
-  readBizCode,
-} from "./api-envelope";
+import { requestJson, HttpError } from "./http/request";
+export async function legacyRequest<T>(url: string, options: import("./http/types").RequestOptions, fallbackMessage: string): Promise<T> {
+  try { return await requestJson<T>(url, { ...options, fallbackMessage }); }
+  catch (error) {
+    if (error instanceof HttpError) throw new AuthError(["network","timeout","aborted"].includes(error.kind) ? "network" : "business", error.message, error.status, error.bizCode);
+    throw new AuthError("network", fallbackMessage);
+  }
+}
 
 export type AuthAction =
   | "login"
@@ -147,39 +149,9 @@ async function postAuth<T>(
   payload: Record<string, unknown>,
   fallbackMessage: string,
 ): Promise<T> {
-  let response: Response;
-
-  try {
-    response = await fetch(`/api/auth/${action}`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-trace-id": generateTraceId(),
-        "x-source-type": "portal-web",
-      },
-      body: JSON.stringify(payload),
-    });
-  } catch {
-    throw new AuthError("network", fallbackMessage);
-  }
-
-  const body = await response.json().catch(() => null);
-
-  // §1.3：业务失败也是 HTTP 200，成败必须看 body.code
-  const bizCode = readBizCode(body);
-  if (!response.ok || (bizCode !== null && bizCode !== BIZ_CODE_OK)) {
-    throw new AuthError(
-      "business",
-      pickMessage(body, fallbackMessage),
-      response.status,
-      bizCode ?? undefined,
-    );
-  }
-
-  if (body && typeof body === "object" && "data" in (body as object)) {
-    return (body as { data: T }).data;
-  }
-  return body as T;
+  return legacyRequest<T>(`/api/auth/${action}`, {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload),
+  }, fallbackMessage);
 }
 
 /**

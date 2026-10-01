@@ -1,7 +1,7 @@
 // src/app/portal/[domain]/[lang]/products/page.tsx
 
 import { ProductClientLayout } from "@/src/components/portal/ProductClientLayout";
-import { fetchTenantData } from "@/src/lib/portal-api";
+import { fetchTenantData } from "@/src/lib/server/portal";
 
 export default async function ProductCenterPage({
   params,

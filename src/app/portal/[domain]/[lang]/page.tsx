@@ -11,7 +11,7 @@ import {
 } from "@douyinfe/semi-icons";
 import { ProductGrid } from "@/src/components/portal/productGrid";
 import { JobBoard } from "@/src/components/portal/jobBoard";
-import { fetchTenantData } from "@/src/lib/portal-api";
+import { fetchTenantData } from "@/src/lib/server/portal";
 
 type PortalProduct = {
   id: string;

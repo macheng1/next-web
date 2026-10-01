@@ -26,25 +26,11 @@
  * 表单那边的 `resolveAuthError()` 不用改就能处理发送失败的提示文案。
  */
 
-import { AuthError } from "./auth-api";
-import {
-  BIZ_CODE_OK,
-  generateTraceId,
-  pickMessage,
-  readBizCode,
-} from "./api-envelope";
+import { legacyRequest } from "./auth-api";
 
-/** 与后端 `SendVerificationCodeDto` 的 `SmsScene` 枚举一一对应 */
-export const SMS_SCENES = {
-  LOGIN: "login",
-  REGISTER: "register",
-  RESET_PASSWORD: "reset_pwd",
-  BIND_PHONE: "bind_phone",
-} as const;
-
+/** 与后端一致的短信场景 */
+export const SMS_SCENES = { LOGIN: "login", REGISTER: "register", RESET_PASSWORD: "reset_pwd", BIND_PHONE: "bind_phone" } as const;
 export type SmsScene = (typeof SMS_SCENES)[keyof typeof SMS_SCENES];
-
-/** 与后端一致：同一手机号 + 同一 scene 60 秒内只能发一次（前端倒计时同值） */
 export const SMS_RESEND_SECONDS = 60;
 
 /** 与后端 DTO 一致：中国大陆手机号 */
@@ -70,40 +56,7 @@ export async function sendSmsCode(
   input: { phone: string; scene: SmsScene },
   fallbackMessage: string,
 ): Promise<SendSmsCodeResult> {
-  let response: Response;
-
-  try {
-    response = await fetch("/api/sms/send-code", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-trace-id": generateTraceId(),
-        "x-source-type": "portal-web",
-      },
-      body: JSON.stringify({ phone: input.phone, scene: input.scene }),
-    });
-  } catch {
-    throw new AuthError("network", fallbackMessage);
-  }
-
-  const body = await response.json().catch(() => null);
-
-  // §1.3：业务失败也可能是 HTTP 200，成败必须看 body.code
-  const bizCode = readBizCode(body);
-  if (!response.ok || (bizCode !== null && bizCode !== BIZ_CODE_OK)) {
-    throw new AuthError(
-      "business",
-      pickMessage(body, fallbackMessage),
-      response.status,
-      bizCode ?? undefined,
-    );
-  }
-
-  return (
-    (body as { data?: SendSmsCodeResult } | null)?.data ?? {
-      phone: input.phone,
-      scene: input.scene,
-      message: "",
-    }
-  );
+  return legacyRequest<SendSmsCodeResult>("/api/sms/send-code", {
+    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(input),
+  }, fallbackMessage);
 }

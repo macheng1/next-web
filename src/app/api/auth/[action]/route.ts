@@ -1,3 +1,4 @@
+import { backendFetch } from "@/src/lib/server/backend";
 import { NextRequest, NextResponse } from "next/server";
 import { headers } from "next/headers";
 import {
@@ -189,11 +190,11 @@ export async function POST(
     // ⚠️ 本项目同时对接两套后端，别混用：
     //   - 会员/认证（本文件）→ MEMBER_API_URL（wx-backend，前缀 /api/v1）
     //   - 门户数据 / 询价 / 访客附件 → API_URL（m-wms-backend，前缀 /api）
-    // MEMBER_API_URL 未配时回退 API_URL，兼容只配了一个变量的部署。详见 .env.example。
-    const apiUrl = process.env.MEMBER_API_URL || process.env.API_URL;
+    // MEMBER_API_URL 必须单独配置，不能回退门户后端。
+    const apiUrl = process.env.MEMBER_API_URL;
     if (!apiUrl) {
       console.error(
-        `Auth route error: MEMBER_API_URL / API_URL is not configured (${action})`,
+        `Auth route error: MEMBER_API_URL is not configured (${action})`,
       );
       return NextResponse.json({ error: "服务器配置错误" }, { status: 500 });
     }
@@ -239,7 +240,7 @@ export async function POST(
       );
     }
 
-    const response = await fetch(`${apiUrl}${BACKEND_PATHS[action]}`, {
+    const response = await backendFetch("member", BACKEND_PATHS[action], {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -258,7 +259,7 @@ export async function POST(
     // 两条都要判：参数类失败是 200+10003，鉴权类失败是 401+40001（见文件头说明）
     if (!response.ok || (bizCode !== null && bizCode !== 200)) {
       return NextResponse.json(
-        payloadBody ?? { error: "认证失败，请稍后重试" },
+        { code: bizCode ?? response.status, message: "认证失败，请稍后重试" },
         { status: response.status },
       );
     }
@@ -312,8 +313,8 @@ export async function POST(
       );
     }
     return next;
-  } catch (error) {
-    console.error("Auth route error:", error);
+  } catch {
+    console.error("Auth route failed");
     return NextResponse.json({ error: "服务器错误，请稍后重试" }, { status: 500 });
   }
 }

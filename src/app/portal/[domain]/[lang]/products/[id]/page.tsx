@@ -1,7 +1,7 @@
 // src/app/portal/[domain]/[lang]/products/[id]/page.tsx
 
 import { ProductDetailContent } from "@/src/components/portal/ProductDetailContent";
-import { fetchProductById } from "@/src/lib/portal-api";
+import { fetchProductById } from "@/src/lib/server/portal";
 
 export default async function ProductDetailPage({
   params,
