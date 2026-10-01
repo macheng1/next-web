@@ -23,9 +23,23 @@ test("privacy choices are equally accessible and never default to acceptance", a
   const accept = dialog.getByRole("button", { name: "Confirm", exact: true });
   await expect(reject).toBeEnabled();
   await expect(accept).toBeEnabled();
-  const a = await reject.boundingBox();
-  const b = await accept.boundingBox();
-  expect(Math.abs(a!.width - b!.width)).toBeLessThan(2);
+  // Measure both buttons in one frame: the modal entrance animation scales them together.
+  await expect
+    .poll(() =>
+      dialog.evaluate((element) => {
+        const buttons = Array.from(
+          element.querySelectorAll<HTMLButtonElement>("button"),
+        ).filter((button) =>
+          ["Cancel", "Confirm"].includes(button.textContent?.trim() || ""),
+        );
+        if (buttons.length !== 2) return Infinity;
+        const first = buttons[0].getBoundingClientRect();
+        const second = buttons[1].getBoundingClientRect();
+        if (!first.width || !second.width) return Infinity;
+        return Math.abs(first.width - second.width);
+      }),
+    )
+    .toBeLessThan(2);
   await reject.focus();
   await expect(reject).toBeFocused();
   await page.keyboard.press("Enter");
