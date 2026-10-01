@@ -195,3 +195,7 @@ export function resetPassword(input: ResetPasswordInput, fallbackMessage: string
 export function changePassword(input: ChangePasswordInput, fallbackMessage: string) {
   return postAuth<ChangePasswordResult>("change-password", { ...input }, fallbackMessage);
 }
+
+/** Clears this website session; backend-wide token revocation is a separate capability. */
+export function logout(): Promise<void> { return requestJson<void>("/api/auth/logout", {method: "POST"}); }
+export function currentMember(): Promise<import("./server/session").WebMember> { return requestJson("/api/auth/me", {cache: "no-store"}); }

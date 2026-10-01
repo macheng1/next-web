@@ -281,7 +281,7 @@ export async function POST(
       const rawExpires = Number(data?.expiresIn);
       const maxAge =
         Number.isFinite(rawExpires) && rawExpires > 0
-          ? rawExpires
+          ? Math.min(Math.floor(rawExpires), MEMBER_TOKEN_MAX_AGE)
           : MEMBER_TOKEN_MAX_AGE;
 
       // 登录态落在 httpOnly Cookie，理由见 src/lib/auth-token.ts
@@ -297,7 +297,7 @@ export async function POST(
       tokenCookie = { value: "", maxAge: 0 };
     }
 
-    const next = NextResponse.json(out);
+    const next = NextResponse.json(out, { headers: { "Cache-Control": "no-store" } });
     if (tokenCookie) {
       next.cookies.set(
         MEMBER_TOKEN_COOKIE,
