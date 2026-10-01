@@ -238,6 +238,14 @@
       "request_failed": "Request failed. Please try again."
     },
     "siteTitle": "Manufacturing directory",
-    "siteDescription": "Helping buyers discover manufacturing businesses"
+    "siteDescription": "Helping buyers discover manufacturing businesses",
+    "portalMetadata": {
+      "home": "Company",
+      "aboutus": "About us",
+      "contact": "Contact",
+      "jobs": "Careers",
+      "products": "Products",
+      "product": "Product details"
+    }
   }
 }

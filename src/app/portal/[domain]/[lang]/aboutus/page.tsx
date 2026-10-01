@@ -1,20 +1,15 @@
+import { portalPageMetadata } from "@/src/lib/server/portal-metadata";
 // src/app/portal/[domain]/[lang]/about/page.tsx
 
 import { AboutUsContent } from "@/src/components/AboutUsContent";
 import { fetchTenantData } from "@/src/lib/server/portal";
-import { Metadata } from "next";
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ domain: string }>;
-}): Promise<Metadata> {
-  const { domain } = await params;
-  const data = await fetchTenantData(domain);
-  return {
-    title: `关于我们 - ${data?.name}`,
-    description: data?.intro,
-  };
+  params: Promise<{ domain: string; lang: string }>;
+}) {
+  return portalPageMetadata(params, "aboutus");
 }
 
 export default async function AboutUsPage({

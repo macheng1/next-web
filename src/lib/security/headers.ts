@@ -20,6 +20,7 @@ export function buildSecurityHeaders({
     `script-src ${script}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://macheng123.oss-cn-hangzhou.aliyuncs.com https://*.amap.com https://*.autonavi.com",
+    "media-src 'self' https://macheng123.oss-cn-hangzhou.aliyuncs.com",
     "font-src 'self' data:",
     `connect-src 'self' https://*.amap.com https://*.autonavi.com${production ? "" : " ws: http://localhost:*"}`,
     "frame-src https://*.amap.com",

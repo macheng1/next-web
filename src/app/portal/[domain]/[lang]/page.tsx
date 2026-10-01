@@ -1,6 +1,6 @@
+import { portalPageMetadata } from "@/src/lib/server/portal-metadata";
 // src/app/portal/[domain]/[lang]/page.tsx
 
-import { Metadata } from "next";
 import Image from "next/image";
 import {
   IconArrowRight,
@@ -42,14 +42,9 @@ type HomeConfig = {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ domain: string }>;
-}): Promise<Metadata> {
-  const { domain } = await params;
-  const data = await fetchTenantData(domain);
-  return {
-    title: `${data?.name || "工厂门户"} - 产品中心`,
-    description: data?.intro,
-  };
+  params: Promise<{ domain: string; lang: string }>;
+}) {
+  return portalPageMetadata(params, "home");
 }
 
 export default async function PortalHome({
@@ -75,7 +70,8 @@ export default async function PortalHome({
     },
     {
       title: homeConfig.responseItems?.[1]?.title || "规格沟通",
-      description: homeConfig.responseItems?.[1]?.description || "材料和尺寸确认",
+      description:
+        homeConfig.responseItems?.[1]?.description || "材料和尺寸确认",
     },
     {
       title: homeConfig.responseItems?.[2]?.title || "批量报价",
@@ -140,8 +136,7 @@ export default async function PortalHome({
               {data.name}
             </h1>
             <p className="mt-6 text-xl md:text-2xl font-semibold text-white/90">
-              {data.slogan ||
-                "面向工业客户的精密制造与稳定交付合作伙伴。"}
+              {data.slogan || "面向工业客户的精密制造与稳定交付合作伙伴。"}
             </p>
             <p className="mt-5 max-w-2xl text-sm md:text-base leading-8 text-white/68">
               {data.intro}

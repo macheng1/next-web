@@ -238,6 +238,14 @@
       "request_failed": "请求失败，请稍后重试"
     },
     "siteTitle": "商汇企业黄页",
-    "siteDescription": "让每一家制造企业，都被精准找到"
+    "siteDescription": "让每一家制造企业，都被精准找到",
+    "portalMetadata": {
+      "home": "企业首页",
+      "aboutus": "关于我们",
+      "contact": "联系我们",
+      "jobs": "招聘",
+      "products": "产品",
+      "product": "产品详情"
+    }
   }
 }

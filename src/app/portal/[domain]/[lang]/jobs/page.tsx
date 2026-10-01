@@ -1,4 +1,4 @@
-import { Metadata } from "next";
+import { portalPageMetadata } from "@/src/lib/server/portal-metadata";
 import { IconArrowRight, IconMapPin } from "@douyinfe/semi-icons";
 import { fetchTenantData } from "@/src/lib/server/portal";
 import { formatJobPublishTime } from "@/src/lib/formatJobPublishTime";
@@ -19,14 +19,9 @@ type PortalJob = {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ domain: string }>;
-}): Promise<Metadata> {
-  const { domain } = await params;
-  const data = await fetchTenantData(domain);
-  return {
-    title: `招聘 - ${data?.name || "工厂门户"}`,
-    description: `查看${data?.name || "企业"}最新招聘职位。`,
-  };
+  params: Promise<{ domain: string; lang: string }>;
+}) {
+  return portalPageMetadata(params, "jobs");
 }
 
 export default async function JobsPage({
@@ -48,7 +43,8 @@ export default async function JobsPage({
           </p>
           <h1 className="mt-4 text-4xl md:text-5xl font-black">招聘职位</h1>
           <p className="mt-5 max-w-2xl leading-8 text-white/65">
-            欢迎加入 {data.name}，参与制造现场、质量管理和客户交付，让稳定产品服务更多工业客户。
+            欢迎加入 {data.name}
+            ，参与制造现场、质量管理和客户交付，让稳定产品服务更多工业客户。
           </p>
         </div>
       </section>

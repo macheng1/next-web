@@ -1,3 +1,4 @@
+import { portalPageMetadata } from "@/src/lib/server/portal-metadata";
 // src/app/portal/[domain]/[lang]/products/[id]/page.tsx
 
 import { ProductDetailContent } from "@/src/components/portal/ProductDetailContent";
@@ -19,4 +20,12 @@ export default async function ProductDetailPage({
       <ProductDetailContent product={product} />
     </div>
   );
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ domain: string; lang: string; id?: string }>;
+}) {
+  return portalPageMetadata(params, "product");
 }

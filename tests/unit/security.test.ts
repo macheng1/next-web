@@ -86,3 +86,12 @@ it("limits actual body without trusting content-length", async () => {
   });
   await expect(readBoundedBody(req, 3)).rejects.toMatchObject({ status: 413 });
 });
+
+it("allows supported OSS videos without widening script or arbitrary media origins", () => {
+  const csp = buildSecurityHeaders({ production: true, nonce: "abc" }).find(
+    (h) => h.key === "Content-Security-Policy",
+  )!.value;
+  expect(csp.split("; ").find((v) => v.startsWith("media-src "))).toBe(
+    "media-src 'self' https://macheng123.oss-cn-hangzhou.aliyuncs.com",
+  );
+});

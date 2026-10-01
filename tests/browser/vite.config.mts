@@ -3,7 +3,12 @@ import { fileURLToPath } from "node:url";
 export default defineConfig({
   root: fileURLToPath(new URL("./fixture", import.meta.url)),
   resolve: {
-    alias: { "@": fileURLToPath(new URL("../../", import.meta.url)) },
+    alias: {
+      "next/navigation": fileURLToPath(
+        new URL("./fixture/navigation.ts", import.meta.url),
+      ),
+      "@": fileURLToPath(new URL("../../", import.meta.url)),
+    },
   },
   esbuild: { jsx: "automatic" },
   server: {
