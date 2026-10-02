@@ -1,9 +1,11 @@
 import "server-only";
+import {isCatalogPath} from "../catalog/model";
 import { isIP } from "node:net";
 import { getServerConfig } from "./config";
 import { fetchResponse, requestJson } from "../http/request";
 import type { RequestOptions } from "../http/types";
 export type BackendPath =
+  | `/web/catalog/${string}`
   | "/web/enterprise-applications"
   | "/web/enterprise-applications/options"
   | "/sms/send-code"
@@ -16,7 +18,9 @@ export type BackendPath =
 function destination(path: BackendPath): string {
   const valid =
     /^(?:\/web\/enterprise-applications(?:\/options)?|\/sms\/send-code|\/web\/auth\/(?:login|forgot-password|reset-password)|\/web\/members\/(?:me|me\/change-password)|\/web\/files\/upload\?module=(?:enterprise-license|enterprise))$/;
-  if (!valid.test(path)) throw new Error("Unsupported backend path");
+  const catalogValid = path.startsWith("/web/catalog/") && !path.includes("#") && isCatalogPath(path.slice("/web/catalog/".length).split("?")[0]);
+  if (!valid.test(path) && !catalogValid)
+    throw new Error("Unsupported backend path");
   const base = getServerConfig().memberApiUrl;
   if (!base) throw new Error("Backend is not configured");
   return base + path;

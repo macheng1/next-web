@@ -23,7 +23,11 @@ it("blocks test indexing and does not invent tenant URLs", () => {
   expect(sitemap()).toEqual([]);
   vi.stubEnv("DEPLOYMENT_ENV", "production");
   vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://directory.test");
-  expect(sitemap().map((v) => v.url)).toEqual(["https://directory.test/"]);
+  expect(sitemap().map((v) => v.url)).toEqual([
+    "https://directory.test/",
+    "https://directory.test/products",
+    "https://directory.test/suppliers",
+  ]);
 });
 it("keeps language links to explicit paths and refuses absolute path injection", () => {
   vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://directory.test");

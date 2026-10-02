@@ -9,6 +9,16 @@ test("production build loads without CSP or hydration errors", async ({
     if (m.type() === "error") errors.push(m.text());
   });
   await page.setExtraHTTPHeaders({ "accept-language": "en" });
+  await page.route("**/api/catalog/**", (route) =>
+    route.fulfill({
+      json: {
+        code: 200,
+        data: route.request().url().includes("/home") ? {hero:{},imageUrl:null,industries:[],products:[]} : route.request().url().includes("/options")
+          ? { categories: [], industries: [] }
+          : { items: [], total: 0, page: 1, pageSize: 12 },
+      },
+    }),
+  );
   const response = await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "en");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

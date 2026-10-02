@@ -17,7 +17,18 @@ export function proxy(req: NextRequest) {
   forwarded.set("x-site-locale", locale);
   forwarded.set("x-nonce", nonce);
   forwarded.set("Content-Security-Policy", security[0].value);
-  const response = NextResponse.next({ request: { headers: forwarded } });
+  const invalidCatalogId =
+    /^(products|suppliers)$/.test(segments[0] || "") &&
+    segments.length === 2 &&
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
+      segments[1],
+    );
+  const response = invalidCatalogId
+    ? NextResponse.rewrite(new URL("/catalog-not-found", req.url), {
+        status: 404,
+        request: { headers: forwarded },
+      })
+    : NextResponse.next({ request: { headers: forwarded } });
   for (const header of security) response.headers.set(header.key, header.value);
   return response;
 }
