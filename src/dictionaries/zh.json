@@ -29,7 +29,7 @@
       "sms_expired": "验证码已过期，请重新获取",
       "sms_invalid": "验证码不正确，请重新输入"
     },
-    "siteTitle": "网站",
+    "siteTitle": "制造帮",
     "siteDescription": "欢迎访问"
   },
   "enterpriseOnboarding": {

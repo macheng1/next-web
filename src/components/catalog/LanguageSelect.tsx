@@ -2,6 +2,7 @@
 import { Dropdown } from "@douyinfe/semi-ui-19";
 import { IconGlobe, IconChevronDown, IconTick } from "@douyinfe/semi-icons";
 import { setPreferredLocale } from "@/src/lib/i18n/set-locale";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "../Button";
 import { useFoundation } from "../Providers";
@@ -9,13 +10,18 @@ import { catalogCopy } from "@/src/lib/catalog/copy";
 export function LanguageSelect() {
   const { locale } = useFoundation();
   const router = useRouter();
+  const [visible, setVisible] = useState(false);
   function change(value: "zh" | "en") {
+    setVisible(false);
+    if (value === locale) return;
     setPreferredLocale(value);
     router.refresh();
   }
   return (
     <Dropdown
       trigger="click"
+      visible={visible}
+      onVisibleChange={setVisible}
       position="bottomRight"
       render={
         <Dropdown.Menu>
@@ -23,9 +29,10 @@ export function LanguageSelect() {
             <Dropdown.Item
               key={value}
               onClick={() => change(value)}
-              icon={locale === value ? <IconTick /> : undefined}
+              // Keep the icon slot mounted: browser translation may replace adjacent text nodes.
+              icon={<IconTick style={{ visibility: locale === value ? "visible" : "hidden" }} />}
             >
-              {value === "en" ? "English" : "简体中文"}
+              <span translate="no">{value === "en" ? "English" : "简体中文"}</span>
             </Dropdown.Item>
           ))}
         </Dropdown.Menu>

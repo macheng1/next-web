@@ -23,8 +23,8 @@ export function CatalogShell({ children }: { children: ReactNode }) {
     ["/#useful-tools", t.tools],
   ];
   return (
-    <div className="min-h-screen bg-white text-ink-900">
-      <header className="border-b border-ink-100 bg-white">
+    <div className="flex min-h-dvh flex-col bg-white text-ink-900">
+      <header className="shrink-0 border-b border-ink-100 bg-white">
         <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" aria-label={t.home}>
             <BrandLogo />
@@ -94,7 +94,7 @@ export function CatalogShell({ children }: { children: ReactNode }) {
           )}
         </div>
       </header>
-      {children}
+      <div className="min-w-0 flex-1">{children}</div>
       <CatalogFooter />
     </div>
   );

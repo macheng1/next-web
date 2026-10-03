@@ -29,7 +29,7 @@
       "sms_expired": "Your SMS code has expired. Request a new code.",
       "sms_invalid": "The SMS code is incorrect. Please try again."
     },
-    "siteTitle": "Website",
+    "siteTitle": "ManuLink",
     "siteDescription": "Welcome"
   },
   "enterpriseOnboarding": {

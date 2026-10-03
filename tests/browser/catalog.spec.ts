@@ -366,3 +366,93 @@ for (const [locale, heading, join] of [
  await expect(footer.getByRole('img',{name:'ManuLink',exact:true})).toHaveAttribute('src','/brand/logo-en-white.svg');
  await footer.getByRole('button',{name:'Language',exact:true}).click();await page.getByRole('menuitem',{name:'简体中文',exact:true}).click();await expect(footer).toContainText('配置公司');await expect(footer.getByRole('img',{name:'制造帮',exact:true})).toHaveAttribute('src','/brand/logo-zh-white.svg');
  });
+
+// Browser translation can wrap menu text outside React's ownership.
+// Changing the selected icon must not insert nodes next to a replaced text node.
+test("language selection tolerates translated menu text and closes the menu", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await page.setExtraHTTPHeaders({ "accept-language": "zh" });
+  await mockCatalog(page);
+  await page.context().addCookies([{ name: "NEXT_LOCALE", value: "zh", url: "http://127.0.0.1:4176" }]);
+  await page.goto("/");
+  await page.locator("header").getByRole("button", { name: "语言", exact: true }).click();
+  const english = page.getByRole("menuitem", { name: "English", exact: true });
+  await english.evaluate(element => {
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const nodes: Text[] = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode as Text);
+    for (const node of nodes) {
+      if (!node.textContent?.trim()) continue;
+      const translated = document.createElement("font");
+      translated.textContent = node.textContent;
+      node.replaceWith(translated);
+    }
+  });
+  await english.click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("Find reliable manufacturing products and suppliers");
+  await expect(page.getByRole("menu")).toBeHidden();
+  expect(errors).toEqual([]);
+  await page.locator("header").getByRole("button", { name: "Language", exact: true }).click();
+  await page.getByRole("menuitem", { name: "简体中文", exact: true }).click();
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("发现优质工业产品，连接专业制造企业");
+  await expect(page.getByRole("menu")).toBeHidden();
+  expect(errors).toEqual([]);
+});
+
+test("catalog height fills tall viewports and long content scrolls naturally", async ({ page }) => {
+  await mockCatalog(page);
+  for (const height of [900, 1352]) {
+    await page.setViewportSize({ width: 1440, height });
+    await page.goto("/products?category=missing&q=missing");
+    await expect(page.getByRole("heading", { name: /No results found|暂无搜索结果/ })).toBeVisible();
+    const footer = await page.getByRole("contentinfo").boundingBox();
+    expect(footer).not.toBeNull();
+    const documentHeight = await page.evaluate(() => document.documentElement.scrollHeight);
+    expect(footer!.y + footer!.height).toBeGreaterThanOrEqual(height - 1);
+    expect(Math.abs(footer!.y + footer!.height - documentHeight)).toBeLessThanOrEqual(1);
+    if (height === 1352) expect(Math.abs(footer!.y + footer!.height - height)).toBeLessThanOrEqual(1);
+  }
+  await page.setViewportSize({ width: 375, height: 667 });
+  await page.goto("/");
+  const footer = await page.getByRole("contentinfo").boundingBox();
+  expect(footer!.y + footer!.height).toBeGreaterThan(667);
+  await page.getByRole("contentinfo").scrollIntoViewIfNeeded();
+  await expect(page.getByRole("contentinfo")).toBeVisible();
+  await noOverflow(page);
+});
+
+test("navigation loading survives browser translation and repeated header navigation", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", error => errors.push(error.message));
+  await mockCatalog(page);
+  let release!: () => void;
+  const responseGate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/api/catalog/products?**", async route => {
+    await responseGate;
+    await route.fulfill({ json: { code: 200, data: { items: [product], total: 1, page: 1, pageSize: 12 } } });
+  });
+  await page.goto("/products");
+  await expect(page.locator("html")).toHaveAttribute("translate", "no");
+  await expect(page.locator('meta[name="google"]')).toHaveAttribute("content", "notranslate");
+  await expect(page.getByRole("status").filter({ hasText: /Loading|正在加载/ }).first()).toBeVisible();
+  // Model translation extensions replacing text nodes, honoring the HTML translate policy.
+  await page.evaluate(() => {
+    for (const element of document.querySelectorAll('[role="status"]')) {
+      if (element.closest('[translate="no"]')) continue;
+      for (const node of Array.from(element.childNodes)) {
+        if (node.nodeType !== Node.TEXT_NODE || !node.textContent?.trim()) continue;
+        const font = document.createElement("font"); font.textContent = node.textContent;
+        node.replaceWith(font);
+      }
+    }
+  });
+  release();
+  await expect(page.getByRole("link", { name: product.name, exact: true })).toBeVisible();
+  for (const href of ["/suppliers", "/#useful-tools", "/products", "/suppliers", "/#useful-tools"]) {
+    await page.locator(`header a[href="${href}"]`).click();
+    if (href.includes("#")) await expect(page.locator("#useful-tools")).toBeVisible();
+    else await expect(page.locator("main h1")).toBeAttached();
+  }
+  expect(errors).toEqual([]);
+});

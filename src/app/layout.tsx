@@ -22,8 +22,10 @@ export default async function RootLayout({
 }>) {
   const locale = await resolveLocale();
   return (
-    // 浏览器翻译类扩展会在水合前往 html/body 注入 class，suppressHydrationWarning 仅忽略该层属性差异
-    <html lang={locale} suppressHydrationWarning>
+    // The site owns zh/en translation. External translators replace React text nodes
+    // and can break navigation reconciliation; declare this for all routes and portals.
+    <html lang={locale} translate="no" className="notranslate" suppressHydrationWarning>
+      <head><meta name="google" content="notranslate" /></head>
       <body className="antialiased" suppressHydrationWarning><Providers locale={locale}>{children}</Providers></body>
     </html>
   );
