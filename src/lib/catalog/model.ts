@@ -96,5 +96,7 @@ export interface CatalogHomeData {hero:{title?:string;description?:string};image
 
 export function isCatalogPath(path:string):boolean {
  const uuid="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
- return new RegExp(`^(?:home|options|products(?:/${uuid})?|enterprises(?:/${uuid}(?:/products)?)?)$`,"i").test(path);
+ return new RegExp(`^(?:home|footer|options|products(?:/${uuid})?|enterprises(?:/${uuid}(?:/products)?)?)$`,"i").test(path);
 }
+
+export interface CatalogFooterData {tagline?:string;description?:string;companyName?:string;year?:number;groups?:{title?:string;links:{label?:string;href:string}[]}[];socialLinks?:Partial<Record<"x"|"instagram"|"linkedin"|"youtube"|"facebook",string>>}

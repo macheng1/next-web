@@ -1,6 +1,11 @@
 "use client";
 import { Empty, Spin } from "@douyinfe/semi-ui-19";
-import { IconAlertCircle, IconInbox, IconLock } from "@douyinfe/semi-icons";
+import {
+  IconAlertCircle,
+  IconInbox,
+  IconLock,
+  IconSpin,
+} from "@douyinfe/semi-icons";
 import { Button } from "@/src/components/Button";
 import { useFoundation } from "@/src/components/Providers";
 import { foundationCopy } from "@/src/lib/i18n/foundation";
@@ -37,7 +42,8 @@ export function StatusState({
       }}
     >
       {kind === "loading" ? (
-        <Spin size="large" tip={message} />
+        // Semi 默认 spin 图标的 linearGradient id 由模块自增计数器生成，SSR 与水合不一致；IconSpin 使用静态 id
+        <Spin size="large" tip={message} indicator={<IconSpin spin />} />
       ) : (
         <>
           <Empty

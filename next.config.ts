@@ -1,6 +1,12 @@
 import { buildSecurityHeaders } from "./src/lib/security/headers";
 const nextConfig = {
   agentRules: false,
+  /**
+   * 通过局域网 IP（如手机/其他电脑访问 http://192.168.2.9:3000）调试时，
+   * Next dev server 默认只放行 localhost 来源，HMR WebSocket 与字体等带 Origin
+   * 头的请求会被 403 拦截。此处放行本机局域网地址；IP 变化时需同步调整。
+   */
+  allowedDevOrigins: ["192.168.2.9"],
   async headers() {
     return [
       {

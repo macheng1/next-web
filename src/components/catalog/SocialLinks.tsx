@@ -1,0 +1,9 @@
+import type {CatalogFooterData} from "@/src/lib/catalog/model";
+export const platforms=[{key:"x",name:"X"},{key:"instagram",name:"Instagram"},{key:"linkedin",name:"LinkedIn"},{key:"youtube",name:"YouTube"},{key:"facebook",name:"Facebook"}] as const;
+function SocialIcon({kind}:{kind:string}){return <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+ {kind==='x'?<path d="M18.9 2H22l-6.8 7.8L23 22h-6.3l-5-7.6L5 22H2l8.2-9.4L1.5 2H8l4.5 6.9L18.9 2ZM17.8 20h1.7L6.9 4H5.1l12.7 16Z"/>:kind==='instagram'?<><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" strokeWidth="2"/><circle cx="17.5" cy="6.5" r="1"/></>:kind==='youtube'?<><rect x="1" y="5" width="22" height="14" rx="4"/><path d="m10 9 6 3-6 3Z" fill="#102e2a"/></>:kind==='linkedin'?<><circle cx="4" cy="4" r="2"/><path d="M2 8h4v14H2zM9 8h4v2c1-2 3-3 5-2 3 0 4 2 4 6v8h-4v-8c0-2-1-3-2-3-2 0-3 1-3 3v8H9z"/></>:<path d="M15 22v-9h3l.5-4H15V7c0-1.2.4-2 2-2h2V1.5L16 1c-3 0-5 2-5 5v3H8v4h3v9z"/>}
+ </svg>;}
+export function SocialLinks({links={},pending}:{links?:CatalogFooterData['socialLinks'];pending:string}){return <div className="mt-5 flex flex-nowrap gap-2">{platforms.map(p=>{
+ const href=links[p.key]; const className="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-white/25 text-white transition hover:border-jade-300 hover:text-jade-200 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-jade-300";
+ return href?<a key={p.key} href={href} target="_blank" rel="noopener noreferrer" aria-label={p.name} className={className}><SocialIcon kind={p.key}/></a>:<span key={p.key} aria-label={`${p.name} · ${pending}`} title={`${p.name} · ${pending}`} aria-disabled="true" className={className+" opacity-50"}><SocialIcon kind={p.key}/></span>;
+ })}</div>;}

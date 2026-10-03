@@ -48,7 +48,8 @@ async function mockCatalog(page: Page) {
     const url = new URL(route.request().url());
     const path = url.pathname.replace("/api/catalog/", "");
     let data: unknown;
-    if(path === "home") data={hero:{},imageUrl:null,industries:[{code:"manufacturing",name:"Manufacturing"}],products:[product]};
+    if(path === "footer") data={};
+    else if(path === "home") data={hero:{},imageUrl:null,industries:[{code:"manufacturing",name:"Manufacturing"}],products:[product]};
     else if (path === "options")
       data = {
         categories: ["Pipe fittings", "Precision parts"],
@@ -126,7 +127,7 @@ test("four-page desktop journey, URL filters, variants and language dropdown", a
     .getByRole("button", { name: "Company profile", exact: true })
     .click();
   await expect(page.getByText("Suzhou Industrial Park")).toBeVisible();
-  await page.getByRole("button", { name: "Language", exact: true }).click();
+  await page.locator("header").getByRole("button", { name: "Language", exact: true }).click();
   await page.getByText("简体中文", { exact: true }).click();
   await expect(page.locator("html")).toHaveAttribute("lang", "zh");
   await expect(
@@ -253,7 +254,7 @@ test("supplier search uses enterprise API and language menu supports keyboard", 
 }) => {
   await mockCatalog(page);
   await page.goto("/");
-  await page.getByRole("button", { name: "Language", exact: true }).focus();
+  await page.locator("header").getByRole("button", { name: "Language", exact: true }).focus();
   await page.keyboard.press("Enter");
   await expect(
     page.getByRole("menuitem", { name: "简体中文", exact: true }),
@@ -325,3 +326,43 @@ test("supplier products paginate and dimensions always resolve to a real variant
  await page.getByRole("button",{name:"Next",exact:true}).click();await request;
  await noOverflow(page);
 });
+
+for (const [locale, heading, join] of [
+  ["zh", "发现与浏览", "企业入驻"],
+  ["en", "Explore", "Join as supplier"],
+] as const) {
+  test(`shared footer navigation and mobile layout (${locale})`, async ({ page }) => {
+    await page.context().addCookies([{ name: "NEXT_LOCALE", value: locale, url: "http://127.0.0.1:4176" }]);
+    await page.setExtraHTTPHeaders({ "accept-language": locale });
+    await mockCatalog(page);
+    for (const width of [320, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto("/");
+      const footer = page.getByRole("contentinfo");
+      await footer.scrollIntoViewIfNeeded();
+      await expect(footer.getByRole("heading", { name: heading, exact: true })).toBeVisible();
+      await expect(footer.getByRole("link", { name: join, exact: true })).toHaveAttribute("href", "/enterprise/apply");
+      await expect(footer.locator('a[href="/products"]')).toBeVisible();
+      await expect(footer.locator('a[href="/suppliers"]')).toBeVisible();
+      await expect(footer).toContainText("©");
+      await noOverflow(page);
+      if(width===320||width===1440)await footer.screenshot({path:test.info().outputPath(`footer-${locale}-${width}.png`)});
+    }
+    await page.getByRole("contentinfo").locator('a[href="/products"]').click();
+    await expect(page).toHaveURL(/\/products$/);
+    await expect(page.getByRole("contentinfo").getByRole("heading", { name: heading, exact: true })).toBeVisible();
+  });
+}
+
+ test("footer consumes published localized configuration and renders social links",async({page})=>{
+ await mockCatalog(page);
+ await page.route('**/api/catalog/footer*',route=>{
+ const en=new URL(route.request().url()).searchParams.get('locale')==='en';
+ return route.fulfill({json:{code:200,data:{tagline:en?'Configured tagline':'配置标语',description:en?'Configured description':'配置介绍',companyName:en?'Configured Company':'配置公司',year:2026,groups:[{title:en?'Custom navigation':'自定义导航',links:[{label:en?'Catalog':'产品目录',href:'/products'}]}],socialLinks:{x:'https://x.com/example',instagram:'https://www.instagram.com/example'}}}});
+ });
+ await page.context().addCookies([{name:'NEXT_LOCALE',value:'en',url:'http://127.0.0.1:4176'}]);
+ await page.goto('/');const footer=page.getByRole('contentinfo');await expect(footer).toContainText('Configured Company');await expect(footer).toContainText('Configured tagline');
+ await expect(footer.getByRole('link',{name:'X',exact:true})).toHaveAttribute('href','https://x.com/example');await expect(footer.getByRole('link',{name:'Instagram',exact:true})).toHaveAttribute('rel','noopener noreferrer');
+ await expect(footer.getByRole('img',{name:'ManuLink',exact:true})).toHaveAttribute('src','/brand/logo-en-white.svg');
+ await footer.getByRole('button',{name:'Language',exact:true}).click();await page.getByRole('menuitem',{name:'简体中文',exact:true}).click();await expect(footer).toContainText('配置公司');await expect(footer.getByRole('img',{name:'制造帮',exact:true})).toHaveAttribute('src','/brand/logo-zh-white.svg');
+ });

@@ -1,5 +1,5 @@
 "use client";
-import Image from "next/image";
+import {BrandLogo} from "./BrandLogo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
@@ -9,6 +9,7 @@ import { useFoundation } from "../Providers";
 import { catalogCopy } from "@/src/lib/catalog/copy";
 import { ComingSoon } from "./DesignPrimitives";
 import { LanguageSelect } from "./LanguageSelect";
+import { CatalogFooter } from "./CatalogFooter";
 export const linkButton =
   "inline-flex min-h-11 items-center justify-center rounded-[6px] border border-jade-200 px-4 py-2 text-sm font-semibold text-jade-700 hover:bg-jade-50";
 export function CatalogShell({ children }: { children: ReactNode }) {
@@ -26,14 +27,7 @@ export function CatalogShell({ children }: { children: ReactNode }) {
       <header className="border-b border-ink-100 bg-white">
         <div className="mx-auto flex min-h-16 max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
           <Link href="/" aria-label={t.home}>
-            <Image
-              src="/brand/logo-horizontal.svg"
-              width={155}
-              height={40}
-              alt="制造帮 Pinmalink"
-              priority
-              className="h-auto w-32 sm:w-40"
-            />
+            <BrandLogo />
           </Link>
           <nav
             aria-label={t.menu}
@@ -101,21 +95,7 @@ export function CatalogShell({ children }: { children: ReactNode }) {
         </div>
       </header>
       {children}
-      <footer className="mt-16 border-t border-ink-100 bg-white px-4 py-8">
-        <div className="mx-auto flex max-w-7xl flex-col justify-between gap-4 sm:flex-row">
-          <p className="text-sm text-ink-600">
-            制造帮 · Pinmalink
-            <br />
-            {t.footer}
-          </p>
-          <Link
-            href="/enterprise/apply"
-            className="text-sm font-semibold text-jade-700"
-          >
-            {t.join} →
-          </Link>
-        </div>
-      </footer>
+      <CatalogFooter />
     </div>
   );
 }

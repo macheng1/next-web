@@ -22,8 +22,9 @@ export default async function RootLayout({
 }>) {
   const locale = await resolveLocale();
   return (
-    <html lang={locale}>
-      <body className="antialiased"><Providers locale={locale}>{children}</Providers></body>
+    // 浏览器翻译类扩展会在水合前往 html/body 注入 class，suppressHydrationWarning 仅忽略该层属性差异
+    <html lang={locale} suppressHydrationWarning>
+      <body className="antialiased" suppressHydrationWarning><Providers locale={locale}>{children}</Providers></body>
     </html>
   );
 }

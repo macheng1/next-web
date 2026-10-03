@@ -9,7 +9,7 @@ export async function catalogMetadata(
   const locale = await resolveLocale();
   const t = catalogCopy(locale);
   return buildMetadata({
-    title: `${t[key]} · Pinmalink`,
+    title: `${t[key]} · ${locale === "en" ? "ManuLink" : "制造帮"}`,
     description: t.heroDescription,
     path,
     locale,

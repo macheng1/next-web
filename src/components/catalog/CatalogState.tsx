@@ -1,5 +1,6 @@
 "use client";
 import { Spin } from "@douyinfe/semi-ui-19";
+import { IconSpin } from "@douyinfe/semi-icons";
 import { catalogCopy } from "@/src/lib/catalog/copy";
 import { HttpError } from "@/src/lib/http/types";
 import { useFoundation } from "../Providers";
@@ -20,7 +21,8 @@ export function CatalogState({
   if (loading)
     return (
       <div role="status" className="flex justify-center gap-3 py-16">
-        <Spin />
+        {/* Semi 默认 spin 图标的 linearGradient id 由模块自增计数器生成，SSR 与水合不一致；IconSpin 使用静态 id */}
+        <Spin indicator={<IconSpin spin />} />
         {t.loading}
       </div>
     );
