@@ -7,6 +7,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname } from "next/navigation";
+import { CookieConsent } from "@/src/components/CookieConsent";
 import { MobileDebugConsole } from "@/src/components/MobileDebugConsole";
 import { isLocale } from "@/src/lib/i18n/locale";
 import { LocaleProvider } from "@douyinfe/semi-ui-19";
@@ -48,6 +49,7 @@ export function Providers({
       <LocaleProvider locale={activeLocale === "en" ? enUS : zhCN}>
         <MobileDebugConsole />
         {children}
+        <CookieConsent />
       </LocaleProvider>
     </LanguageContext.Provider>
   );
