@@ -1,10 +1,14 @@
 export interface EnterpriseSummary {
   id: string;
   name: string;
+  legalName?: string;
   city: string | null;
   logoUrl: string | null;
   description?: string | null;
   industryCode?: string;
+  industryName?: string | null;
+  scaleCode?: string | null;
+  foundedYear?: number | null;
 }
 export interface Product {
   id: string;
@@ -23,7 +27,7 @@ export interface Product {
   variantName: string;
   variants: {
     id: string;
-    dimensionValues?:string[];
+    dimensionValues?: string[];
     value: string;
     imageUrl: string | null;
     price: string | null;
@@ -31,7 +35,9 @@ export interface Product {
   }[];
 }
 export interface Enterprise extends EnterpriseSummary {
-  coverUrl?:string|null; capabilities?:{code:string;name:string}[];
+  categories?: { id: string; name: string; count: number }[];
+  coverUrl?: string | null;
+  capabilities?: { code: string; name: string }[];
   address: string | null;
   foundedYear: number | null;
   albums: { id: string; imageUrl: string; title?: string }[];
@@ -45,13 +51,13 @@ export interface CatalogPage<T> {
 }
 export interface CatalogOptions {
   categories: string[];
-  categoryOptions?:{value:string;label:string;count:number}[];
+  categoryOptions?: { value: string; label: string; count: number }[];
   industries: { code: string; name: string }[];
   categoryCounts?: Record<string, number>;
   facets?: {
-    material: { value: string; label?:string; count: number }[];
-    connection: { value: string; label?:string; count: number }[];
-    size: { value: string; label?:string; count: number }[];
+    material: { value: string; label?: string; count: number }[];
+    connection: { value: string; label?: string; count: number }[];
+    size: { value: string; label?: string; count: number }[];
   };
 }
 export const catalogKeys = [
@@ -62,6 +68,7 @@ export const catalogKeys = [
   "connection",
   "size",
   "industry",
+  "enterpriseCategoryId",
   "sort",
   "page",
   "pageSize",
@@ -78,7 +85,10 @@ export function safeCatalogImage(value?: string | null): string | null {
   if (!value) return null;
   try {
     const u = new URL(value);
-    return u.hostname === "macheng123.oss-cn-hangzhou.aliyuncs.com" &&
+    return [
+      "macheng123.oss-cn-hangzhou.aliyuncs.com",
+      "img.shopai.org.cn",
+    ].includes(u.hostname) &&
       ["https:", "http:"].includes(u.protocol) &&
       !u.username &&
       !u.password
@@ -92,11 +102,33 @@ export function safeCatalogImage(value?: string | null): string | null {
   }
 }
 
-export interface CatalogHomeData {hero:{title?:string;description?:string};imageUrl?:string|null;industries:{code:string;name:string}[];products:Product[]}
-
-export function isCatalogPath(path:string):boolean {
- const uuid="[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
- return new RegExp(`^(?:home|footer|options|products(?:/${uuid})?|enterprises(?:/${uuid}(?:/products)?)?)$`,"i").test(path);
+export interface CatalogHomeData {
+  hero: { title?: string; description?: string };
+  imageUrl?: string | null;
+  industries: {
+    code: string;
+    name: string;
+    badge?: string | null;
+    badgeImage?: string | null;
+  }[];
+  products: Product[];
 }
 
-export interface CatalogFooterData {tagline?:string;description?:string;companyName?:string;year?:number;groups?:{title?:string;links:{label?:string;href:string}[]}[];socialLinks?:Partial<Record<"x"|"instagram"|"linkedin"|"youtube"|"facebook",string>>}
+export function isCatalogPath(path: string): boolean {
+  const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+  return new RegExp(
+    `^(?:home|footer|options|products(?:/${uuid})?|enterprises(?:/${uuid}(?:/products)?)?)$`,
+    "i",
+  ).test(path);
+}
+
+export interface CatalogFooterData {
+  tagline?: string;
+  description?: string;
+  companyName?: string;
+  year?: number;
+  groups?: { title?: string; links: { label?: string; href: string }[] }[];
+  socialLinks?: Partial<
+    Record<"x" | "instagram" | "linkedin" | "youtube" | "facebook", string>
+  >;
+}

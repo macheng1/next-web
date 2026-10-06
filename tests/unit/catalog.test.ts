@@ -30,3 +30,8 @@ describe("public catalog boundaries", () => {
       Object.keys(catalogCopy("en")).sort(),
     ));
 });
+
+it('accepts platform CDN icons and rejects lookalike domains', () => {
+  expect(safeCatalogImage('https://img.shopai.org.cn/development/industry/icon.png')).toBe('https://img.shopai.org.cn/development/industry/icon.png');
+  expect(safeCatalogImage('https://img.shopai.org.cn.evil.test/icon.png')).toBeNull();
+});

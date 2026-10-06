@@ -80,9 +80,10 @@ const en = {
   location: "Location",
   address: "Registered address",
   founded: "Founded",
+  employees: "Employees",
   albums: "Company gallery",
   profileNote:
-    "Company and product information is supplied by the enterprise. Interface language changes do not translate submitted content.",
+    "Company and product information is supplied by the enterprise. English content is maintained by the supplier; untranslated fields use the original content.",
   contactNote:
     "Online inquiries are not available yet. You can browse product details and supplier profiles.",
   onboardTitle: "Bring your manufacturing expertise to new markets",
@@ -90,13 +91,16 @@ const en = {
     "Create a company presence and showcase your products. Submit your enterprise application to get started.",
   browse: "Browse products",
   footer: "Industrial products · Manufacturing expertise · New partnerships",
-  footerAbout: "Discover industrial products, explore manufacturing capabilities and connect with your next business partner.",
+  footerAbout:
+    "Discover industrial products, explore manufacturing capabilities and connect with your next business partner.",
   footerExplore: "Explore",
   footerEnterprise: "For enterprises",
-  footerJoinHint: "Present your company and products. Start with an enterprise application.",
+  footerJoinHint:
+    "Present your company and products. Start with an enterprise application.",
   footerRights: "All rights reserved.",
   noCompany: "No suppliers found",
   companyName: "Company name",
+  companyIntroduction: "About the company",
   category: "Category",
   productImage: "Product image",
   chooseImage: "View image",
@@ -181,9 +185,10 @@ const zh: typeof en = {
   location: "所在地",
   address: "注册地址",
   founded: "成立年份",
+  employees: "企业规模",
   albums: "企业相册",
   profileNote:
-    "企业与产品资料由企业提供。切换界面语言不会自动翻译企业填写的内容。",
+    "企业与产品资料由企业提供。英文资料由企业维护，未填写英文的字段显示中文。",
   contactNote: "在线询盘暂未开放，可先查看产品详情和企业资料。",
   onboardTitle: "让您的制造能力被更多客户看见",
   onboardDescription:
@@ -197,6 +202,7 @@ const zh: typeof en = {
   footerRights: "保留所有权利。",
   noCompany: "暂无符合条件的企业",
   companyName: "企业名称",
+  companyIntroduction: "企业介绍",
   category: "分类",
   productImage: "产品图片",
   chooseImage: "查看图片",

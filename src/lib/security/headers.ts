@@ -19,7 +19,7 @@ export function buildSecurityHeaders({
     "default-src 'self'",
     `script-src ${script}`,
     "style-src 'self' 'unsafe-inline'",
-    "img-src 'self' data: blob: https://macheng123.oss-cn-hangzhou.aliyuncs.com",
+    "img-src 'self' data: blob: https://macheng123.oss-cn-hangzhou.aliyuncs.com https://img.shopai.org.cn",
     "media-src 'self' https://macheng123.oss-cn-hangzhou.aliyuncs.com",
     "font-src 'self' data:",
     `connect-src 'self'${production ? "" : " ws: http://localhost:*"}`,

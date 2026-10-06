@@ -2,6 +2,14 @@ import { it, expect } from "vitest";
 import { assertTrustedOrigin } from "../../src/lib/security/origin";
 import { validateExternalUrl } from "../../src/lib/security/links";
 import { buildSecurityHeaders } from "../../src/lib/security/headers";
+it("allows the platform image CDN in local and production CSP", () => {
+  for (const production of [false, true]) {
+    const csp = buildSecurityHeaders({ production, nonce: "test123" }).find(h => h.key === "Content-Security-Policy")!.value;
+    const images = csp.split("; ").find(d => d.startsWith("img-src "))!;
+    expect(images.split(" ")).toContain("https://img.shopai.org.cn");
+    expect(images.split(" ")).not.toContain("*");
+  }
+});
 import {
   SuccessfulSubmissions,
   MemoryRateLimiter,

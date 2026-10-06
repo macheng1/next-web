@@ -5,6 +5,7 @@ import { getServerConfig } from "./config";
 import { fetchResponse, requestJson } from "../http/request";
 import type { RequestOptions } from "../http/types";
 export type BackendPath =
+  | "/regions/tree"
   | `/web/catalog/${string}`
   | "/web/enterprise-applications"
   | "/web/enterprise-applications/options"
@@ -19,7 +20,7 @@ function destination(path: BackendPath): string {
   const valid =
     /^(?:\/web\/enterprise-applications(?:\/options)?|\/sms\/send-code|\/web\/auth\/(?:login|forgot-password|reset-password)|\/web\/members\/(?:me|me\/change-password)|\/web\/files\/upload\?module=(?:enterprise-license|enterprise))$/;
   const catalogValid = path.startsWith("/web/catalog/") && !path.includes("#") && isCatalogPath(path.slice("/web/catalog/".length).split("?")[0]);
-  if (!valid.test(path) && !catalogValid)
+  if (!valid.test(path) && !catalogValid && path !== "/regions/tree")
     throw new Error("Unsupported backend path");
   const base = getServerConfig().memberApiUrl;
   if (!base) throw new Error("Backend is not configured");

@@ -54,8 +54,19 @@ function FilterPanel({
                 aria-pressed={(values.get("category") || "") === c}
               >
                 <span className="flex w-full min-w-0 items-center justify-between gap-2">
-                  <span className="min-w-0 truncate" title={options.categoryOptions?.find(o=>o.value===c)?.label || c || t.all}>
-                    {options.categoryOptions?.find(o=>o.value===c)?.label || c || t.all}
+                  <span
+                    className="min-w-0 truncate"
+                    title={
+                      options.categoryOptions?.find((o) => o.value === c)
+                        ?.label ||
+                      c ||
+                      t.all
+                    }
+                  >
+                    {options.categoryOptions?.find((o) => o.value === c)
+                      ?.label ||
+                      c ||
+                      t.all}
                   </span>
                   {c && options.categoryCounts?.[c] !== undefined && (
                     <span className="shrink-0 text-xs font-normal text-ink-500">
@@ -103,8 +114,11 @@ function FilterPanel({
                         );
                       }}
                     >
-                      <span className="block truncate" title={f.label||f.value}>
-                        {f.label||f.value}
+                      <span
+                        className="block truncate"
+                        title={f.label || f.value}
+                      >
+                        {f.label || f.value}
                       </span>
                     </Checkbox>
                     <span className="shrink-0 text-ink-500">{f.count}</span>
@@ -248,8 +262,15 @@ export function CatalogDirectory({
                           ? options.data?.industries.find(
                               (i) => i.code === value,
                             )?.name || value
-                          : k==="category" ? options.data?.categoryOptions?.find(o=>o.value===value)?.label||value
-                          : ["material","connection","size"].includes(k) ? options.data?.facets?.[k as "material"|"connection"|"size"].find(f=>f.value===value)?.label||value : value;
+                          : k === "category"
+                            ? options.data?.categoryOptions?.find(
+                                (o) => o.value === value,
+                              )?.label || value
+                            : ["material", "connection", "size"].includes(k)
+                              ? options.data?.facets?.[
+                                  k as "material" | "connection" | "size"
+                                ].find((f) => f.value === value)?.label || value
+                              : value;
                       return (
                         <Button
                           radius={6}
@@ -295,7 +316,7 @@ export function CatalogDirectory({
               (kind === "products" ? (
                 <ProductGrid products={results.data.items as Product[]} />
               ) : (
-                <div className="grid gap-4 md:grid-cols-2">
+                <div className="flex flex-col gap-4">
                   {(results.data.items as EnterpriseSummary[]).map((e) => (
                     <EnterpriseCard key={e.id} enterprise={e} />
                   ))}
@@ -314,10 +335,42 @@ export function CatalogDirectory({
                 >
                   {t.previous}
                 </Button>
-                <span>
-                  {page} /{" "}
-                  {Math.ceil(results.data.total / results.data.pageSize)}
-                </span>
+                {kind === "suppliers" ? (
+                  <div className="flex flex-wrap justify-center gap-2">
+                    {Array.from(
+                      {
+                        length: Math.min(
+                          5,
+                          Math.ceil(results.data.total / results.data.pageSize),
+                        ),
+                      },
+                      (_, index) => {
+                        const totalPages = Math.ceil(
+                          results.data!.total / results.data!.pageSize,
+                        );
+                        const value =
+                          Math.max(1, Math.min(page - 2, totalPages - 4)) +
+                          index;
+                        return (
+                          <Button
+                            key={value}
+                            radius={6}
+                            variant={page === value ? "primary" : "outline"}
+                            aria-current={page === value ? "page" : undefined}
+                            onClick={() => change("page", String(value))}
+                          >
+                            {value}
+                          </Button>
+                        );
+                      },
+                    )}
+                  </div>
+                ) : (
+                  <span>
+                    {page} /{" "}
+                    {Math.ceil(results.data.total / results.data.pageSize)}
+                  </span>
+                )}
                 <Button
                   radius={6}
                   variant="outline"
