@@ -12,6 +12,8 @@ export const emptyEnterprise = {
   legalPerson: "",
   description: "",
   cityName: "",
+  cityCode: "",
+  adcode: "",
 };
 export type EnterpriseValues = typeof emptyEnterprise;
 export type ValidationKey =
@@ -32,6 +34,8 @@ const limits: Record<keyof EnterpriseValues, number> = {
   legalPerson: 64,
   description: 2000,
   cityName: 64,
+  cityCode: 6,
+  adcode: 6,
 };
 const required: (keyof EnterpriseValues)[] = [
   "companyName",

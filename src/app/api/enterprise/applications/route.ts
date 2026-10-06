@@ -28,6 +28,8 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({
           ...normalizeEnterprise(body),
+          cityCode: body.cityCode || undefined,
+          adcode: body.adcode || undefined,
           requestId: body.requestId,
           countryCode: "CN",
           smsCode: body.smsCode,

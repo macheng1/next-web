@@ -58,7 +58,9 @@
       "registeredAddress": "Registered address",
       "legalPerson": "Legal representative (optional)",
       "description": "Company introduction (optional)",
-      "cityName": "City (optional)"
+      "cityName": "City (optional)",
+      "cityCode": "City code",
+      "adcode": "District code"
     },
     "validation": {
       "required": "This field is required",

@@ -58,7 +58,9 @@
       "registeredAddress": "注册地址",
       "legalPerson": "法定代表人（选填）",
       "description": "企业简介（选填）",
-      "cityName": "所在城市（选填）"
+      "cityName": "所在城市（选填）",
+      "cityCode": "城市编码",
+      "adcode": "区县编码"
     },
     "validation": {
       "required": "请填写此项",

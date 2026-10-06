@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 test.use({ baseURL: "http://127.0.0.1:4176" });
+test.beforeEach(async({page})=>{await page.route("**/api/regions",r=>r.fulfill({json:{code:200,data:{items:[]}}}));});
 const options = {
   countries: [{ code: "CN", name: "中国大陆" }],
   industries: [{ code: "manufacturing", name: "制造业" }],
@@ -64,6 +65,7 @@ for (const viewport of [
         ? "/enterprise/apply?entry=miniapp"
         : "/enterprise/apply",
     );
+    await page.getByTestId("cookie-consent").getByRole("button", {name: "仅必要 Cookie", exact: true}).click();
     if (viewport.name === "h5")
       await expect(page.getByRole("link", { name: "返回首页" })).toHaveCount(0);
     await expect(page.locator("aside")).toHaveCount(0);

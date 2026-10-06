@@ -1,4 +1,5 @@
 "use client";
+import {RegionSelect} from "@/src/components/RegionSelect";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
@@ -263,6 +264,8 @@ export function EnterpriseApplication({
             legalPerson: 64,
             description: 2000,
             cityName: 64,
+            cityCode: 6,
+            adcode: 6,
             industryCode: 32,
             scaleCode: 16,
           }[key]
@@ -491,7 +494,7 @@ export function EnterpriseApplication({
                         {field("companyName", true)}
                         {field("companyShortName")}
                         {field("creditCode", true)}
-                        {field("cityName")}
+                        <RegionSelect cityCode={values.cityCode} adcode={values.adcode} cityName={values.cityName} locale={locale} onChange={r=>setValues(v=>({...v,...r}))} />
                         {choice("industryCode")}
                         {choice("scaleCode")}
                         <div className="col-span-full min-w-0">
@@ -545,7 +548,7 @@ export function EnterpriseApplication({
                   {step === 2 && (
                     <>
                       <dl className="mb-7 [&>div]:grid [&>div]:grid-cols-1 [&>div]:gap-1 [&>div]:border-b [&>div]:border-[var(--ink-100)] [&>div]:py-3 [&>div]:text-sm sm:[&>div]:grid-cols-[180px_minmax(0,1fr)] sm:[&>div]:gap-4 [&_dt]:text-[var(--ink-500)] [&_dd]:m-0 [&_dd]:[overflow-wrap:anywhere] [&_dd]:whitespace-pre-wrap">
-                        {(Object.keys(values) as (keyof EnterpriseValues)[])
+                        {(Object.keys(values).filter(k=>k!=="cityCode"&&k!=="adcode") as (keyof EnterpriseValues)[])
                           .filter((k) => values[k])
                           .map((k) => (
                             <div key={k}>
