@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-test.use({ baseURL: "http://127.0.0.1:4176" });
+test.use({ baseURL: "http://127.0.0.1:4175" });
 const node = (
   code: string,
   name: string,
@@ -20,7 +20,7 @@ for (const width of [1280, 390])
     await page
       .context()
       .addCookies([
-        { name: "NEXT_LOCALE", value: "zh", url: "http://127.0.0.1:4176" },
+        { name: "NEXT_LOCALE", value: "zh", url: "http://127.0.0.1:4175" },
       ]);
     await page.route("**/api/enterprise/applications/options", (r) =>
       r.fulfill({ json: { code: 200, data: { industries: [], scales: [] } } }),
@@ -28,7 +28,7 @@ for (const width of [1280, 390])
     await page.route("**/api/regions", (r) =>
       r.fulfill({ json: { code: 200, data: { items } } }),
     );
-    await page.goto("/enterprise/apply?entry=miniapp");
+    await page.goto("/?enterpriseComponent=1");
     await page
       .getByTestId("cookie-consent")
       .getByRole("button", { name: "仅必要 Cookie", exact: true })

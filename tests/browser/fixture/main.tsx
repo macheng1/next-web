@@ -1,3 +1,10 @@
+import {EnterpriseApplication} from "@/src/components/EnterpriseApplication";
+import "@/src/app/globals.css";
+import {BuyerFixture} from "../buyer-fixture";
+import { AuthShell } from "@/src/components/auth/AuthShell";
+import { LoginForm } from "@/src/components/auth/LoginForm";
+import { RegisterForm } from "@/src/components/auth/RegisterForm";
+import { PasswordResetForm } from "@/src/components/auth/PasswordResetForm";
 import { useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Providers } from "@/src/components/Providers";
@@ -11,6 +18,11 @@ function Fixture() {
   const [modal, setModal] = useState(false);
   const [privacy, setPrivacy] = useState(false);
   const [count, setCount] = useState(0);
+  if(new URLSearchParams(window.location.search).has("enterpriseComponent"))return <Providers locale="zh"><EnterpriseApplication embedded/></Providers>;
+  const buyer=new URLSearchParams(window.location.search).get("buyer");
+  if(buyer)return <Providers locale={new URLSearchParams(window.location.search).get("lang")==="zh"?"zh":"en"}><BuyerFixture screen={buyer}/></Providers>;
+  const auth=new URLSearchParams(window.location.search).get("auth");
+  if(auth)return <Providers locale="en"><AuthShell>{auth==="register"?<RegisterForm/>:auth==="forgot"?<PasswordResetForm/>:auth==="reset"?<PasswordResetForm token=""/>:<LoginForm/>}</AuthShell></Providers>;
   return (
     <Providers locale="en">
       <main style={{ maxWidth: 800, margin: "auto", padding: 24 }}>

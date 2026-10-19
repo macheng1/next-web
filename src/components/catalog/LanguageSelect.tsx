@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "../Button";
 import { useFoundation } from "../Providers";
 import { catalogCopy } from "@/src/lib/catalog/copy";
-export function LanguageSelect() {
+export function LanguageSelect({compact=false}:{compact?:boolean}) {
   const { locale } = useFoundation();
   const router = useRouter();
   const [visible, setVisible] = useState(false);
@@ -42,7 +42,7 @@ export function LanguageSelect() {
         <Button
           radius={6}
           variant="ghost"
-          icon={<IconGlobe />}
+          icon={compact ? undefined : <IconGlobe />}
           aria-label={catalogCopy(locale).language}
         >
           {locale === "en" ? "English" : "简体中文"} <IconChevronDown />

@@ -247,6 +247,23 @@ html body {
   background-color: var(--ink-50);
 }
 
+.shhy-field .semi-select {
+  min-height: 46px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--ink-100);
+  background-color: var(--ink-50);
+}
+
+.shhy-field .semi-select:hover {
+  border-color: var(--ink-200);
+}
+
+.shhy-field .semi-select-focus {
+  border-color: var(--jade-400);
+  background-color: var(--surface);
+  box-shadow: 0 0 0 3px var(--jade-50);
+}
+
 .shhy-field .semi-input-wrapper:hover {
   border-color: var(--ink-200);
   background-color: var(--ink-50);

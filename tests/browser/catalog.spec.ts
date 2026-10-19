@@ -291,12 +291,12 @@ test("approved design regions and parameter filters stay usable", async ({
   await mockCatalog(page);
   await page.goto("/");
   await expect(
-    page.getByRole("heading", { name: "Useful tools" }),
+    page.getByRole("heading", { name: "How it works", exact:true }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "Weight calculator" }),
+    page.getByRole("heading", { name: "Featured products", exact:true }),
   ).toBeVisible();
-  await expect(page.getByText("Coming soon").first()).toBeVisible();
+  await expect(page.locator('a[href="/enterprise/apply"]')).toHaveCount(0);
   await page.goto("/products");
   await page.getByRole("checkbox", { name: "Stainless steel 304" }).focus();
   await page.keyboard.press("Space");
@@ -362,6 +362,14 @@ test("supplier products paginate and dimensions always resolve to a real variant
       .getByRole("button", { name: "G3/4", exact: true }),
   ).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText("Negotiable", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("group", { name: "Thread", exact: true })
+      .getByRole("button", { name: "G1/2", exact: true }),
+  ).toBeDisabled();
+  await expect(
+    page.getByRole("group", { name: "Size", exact: true })
+      .getByRole("button", { name: "DN20", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
   await page.goto(`/suppliers/${enterpriseId}`);
   await page.getByRole("button", { name: "Products", exact: true }).click();
   const request = page.waitForRequest(
@@ -374,10 +382,48 @@ test("supplier products paginate and dimensions always resolve to a real variant
   await noOverflow(page);
 });
 
-for (const [locale, heading, join] of [
-  ["zh", "发现与浏览", "企业入驻"],
-  ["en", "Explore", "Join as supplier"],
-] as const) {
+for (const locale of ["zh", "en"] as const) {
+  test(`dependent dimensions preserve parent choices and compatible values (${locale})`, async ({ page }) => {
+    await page.context().addCookies([{ name: "NEXT_LOCALE", value: locale, url: "http://127.0.0.1:4176" }]);
+    await page.setExtraHTTPHeaders({ "accept-language": locale });
+    await mockCatalog(page);
+    await page.route(`**/api/catalog/products/${id}*`, (r) => r.fulfill({
+      json: { code: 200, data: {
+        ...product,
+        dimensionNames: ["Size", "Thread", "Material"],
+        variants: [
+          { ...product.variants[0], dimensionValues: ["6 mm", "G1/8", "Steel"] },
+          { ...product.variants[0], id: "v2", dimensionValues: ["6 mm", "G1/4", "Brass"], price: "Price B" },
+          { ...product.variants[0], id: "v3", dimensionValues: ["8 mm", "G1/4", "Brass"], price: "Price C" },
+          { ...product.variants[0], id: "v4", dimensionValues: ["8 mm", "G3/8", "Steel"], price: "Price D" },
+        ],
+      } },
+    }));
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      await page.goto(`/products/${id}`);
+      const option = (group: string, name: string) => page.getByRole("group", { name: group, exact: true }).getByRole("button", { name, exact: true });
+      await expect(option("Thread", "G3/8")).toBeDisabled();
+      await option("Thread", "G1/4").click();
+      await expect(option("Size", "6 mm")).toHaveAttribute("aria-pressed", "true");
+      await expect(option("Material", "Brass")).toHaveAttribute("aria-pressed", "true");
+      await expect(option("Material", "Steel")).toBeDisabled();
+      await expect(page.getByText("Price B", { exact: true })).toBeVisible();
+      await option("Size", "8 mm").click();
+      await expect(option("Thread", "G1/4")).toHaveAttribute("aria-pressed", "true");
+      await expect(option("Material", "Brass")).toHaveAttribute("aria-pressed", "true");
+      await expect(option("Thread", "G1/8")).toBeDisabled();
+      await expect(page.getByText("Price C", { exact: true })).toBeVisible();
+      await option("Thread", "G3/8").click();
+      await expect(option("Size", "8 mm")).toHaveAttribute("aria-pressed", "true");
+      await expect(option("Material", "Steel")).toHaveAttribute("aria-pressed", "true");
+      await expect(page.getByText("Price D", { exact: true })).toBeVisible();
+      await noOverflow(page);
+    }
+  });
+}
+
+for (const locale of ["zh","en"] as const) {
   test(`shared footer navigation and mobile layout (${locale})`, async ({
     page,
   }) => {
@@ -393,12 +439,8 @@ for (const [locale, heading, join] of [
       await page.goto("/");
       const footer = page.getByRole("contentinfo");
       await footer.scrollIntoViewIfNeeded();
-      await expect(
-        footer.getByRole("heading", { name: heading, exact: true }),
-      ).toBeVisible();
-      await expect(
-        footer.getByRole("link", { name: join, exact: true }),
-      ).toHaveAttribute("href", "/enterprise/apply");
+      await expect(footer.locator('a[href="/enterprise/apply"]')).toHaveCount(0);
+      await expect(footer.locator('a[href="/enterprise/apply"]')).toHaveCount(0);
       await expect(footer.locator('a[href="/products"]')).toBeVisible();
       await expect(footer.locator('a[href="/suppliers"]')).toBeVisible();
       await expect(footer).toContainText("©");
@@ -410,11 +452,7 @@ for (const [locale, heading, join] of [
     }
     await page.getByRole("contentinfo").locator('a[href="/products"]').click();
     await expect(page).toHaveURL(/\/products$/);
-    await expect(
-      page
-        .getByRole("contentinfo")
-        .getByRole("heading", { name: heading, exact: true }),
-    ).toBeVisible();
+    await expect(page.getByRole("contentinfo").locator('a[href="/enterprise/apply"]')).toHaveCount(0);
   });
 }
 
@@ -611,14 +649,14 @@ test("navigation loading survives browser translation and repeated header naviga
   ).toBeVisible();
   for (const href of [
     "/suppliers",
-    "/#useful-tools",
+    "/#how",
     "/products",
     "/suppliers",
-    "/#useful-tools",
+    "/#how",
   ]) {
     await page.locator(`header a[href="${href}"]`).click();
     if (href.includes("#"))
-      await expect(page.locator("#useful-tools")).toBeVisible();
+      await expect(page.locator("#how")).toBeVisible();
     else await expect(page.locator("main h1")).toBeAttached();
   }
   expect(errors).toEqual([]);
@@ -806,3 +844,32 @@ test("empty supplier sections are hidden while the products tab remains availabl
  await page.getByRole('button',{name:'Products',exact:true}).click();
  await expect(page.getByRole('heading',{name:'Products from this supplier',exact:true})).toBeVisible();
 });
+
+test("public product cards have no pricing placeholder and supplier inquiry entries are live", async ({page}) => {
+  await page.setExtraHTTPHeaders({"accept-language": "en"});
+  await mockCatalog(page);
+  await page.goto("/");
+  await expect(page.getByText("Request pricing", {exact: true})).toHaveCount(0);
+  await page.goto(`/suppliers/${enterpriseId}`);
+  await expect(page.getByText("Coming soon", {exact: true})).toHaveCount(0);
+  await expect(page.locator(`a[href="/buyer/inquiries/new?enterpriseId=${enterpriseId}"]`).first()).toBeVisible();
+});
+
+test("medium desktop widths keep sign-in navigation visible", async ({page}) => {
+ await page.setExtraHTTPHeaders({"accept-language":"en"});await mockCatalog(page);
+ for (const width of [1024, 1152, 1279]) {
+  await page.setViewportSize({width,height:900});await page.goto('/');
+  await expect(page.locator('header a[href="/login"]')).toBeVisible();
+  await noOverflow(page);
+ }
+});
+for (const unit of ['公斤', 'Kilograms']) {
+ test(`quantity accepts fractions for normalized kg despite display unit ${unit}`, async ({page}) => {
+  await page.setExtraHTTPHeaders({"accept-language":"en"});await mockCatalog(page);
+  await page.route(`**/api/catalog/products/${id}*`, route => route.fulfill({json:{code:200,data:{...product,unit,variants:product.variants.map(v=>({...v,unit:'kg'}))}}}));
+  await page.goto(`/products/${id}`);
+  const input=page.getByLabel('Quantity',{exact:true});await input.fill('0.5');await input.blur();
+  await expect.poll(async () => Number(await input.inputValue())).toBe(0.5);
+  await expect(input).toHaveAttribute('aria-valuenow','0.5');
+ });
+}

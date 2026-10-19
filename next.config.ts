@@ -9,6 +9,7 @@ const nextConfig = {
   allowedDevOrigins: ["192.168.2.9"],
   async headers() {
     return [
+      { source: "/reset-password", headers: [{key:"Referrer-Policy",value:"no-referrer"},{key:"Cache-Control",value:"no-store"}] },
       {
         source: "/(.*)",
         headers: buildSecurityHeaders({

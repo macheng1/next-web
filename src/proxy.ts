@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { buildSecurityHeaders } from "@/src/lib/security/headers";
-import { resolveLanguage } from "@/src/lib/i18n/locale";
+import { isLocale, resolveLanguage } from "@/src/lib/i18n/locale";
 export function proxy(req: NextRequest) {
   const segments = req.nextUrl.pathname.split("/").filter(Boolean);
+  const resetLanguage = segments[0] === "reset-password" ? req.nextUrl.searchParams.get("lang") : null;
   const locale = resolveLanguage({
     pathLocale: segments[0],
     cookieLocale: req.cookies.get("NEXT_LOCALE")?.value,
@@ -23,13 +24,26 @@ export function proxy(req: NextRequest) {
     !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(
       segments[1],
     );
-  const response = invalidCatalogId
+  const cleanResetUrl = req.nextUrl.clone();
+  cleanResetUrl.searchParams.delete("lang");
+  const response = isLocale(resetLanguage)
+    ? NextResponse.redirect(cleanResetUrl)
+    : invalidCatalogId
     ? NextResponse.rewrite(new URL("/catalog-not-found", req.url), {
         status: 404,
         request: { headers: forwarded },
       })
     : NextResponse.next({ request: { headers: forwarded } });
+  if (isLocale(resetLanguage)) {
+    response.cookies.set("NEXT_LOCALE", resetLanguage, {
+      path: "/", maxAge: 31536000, sameSite: "lax", secure: req.nextUrl.protocol === "https:",
+    });
+  }
   for (const header of security) response.headers.set(header.key, header.value);
+  if (["login", "register", "forgot-password", "reset-password", "account"].includes(segments[0] || "")) {
+    response.headers.set("Cache-Control", "no-store");
+    response.headers.set("Referrer-Policy", "no-referrer");
+  }
   return response;
 }
 export const config = {

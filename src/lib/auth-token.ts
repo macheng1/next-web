@@ -1,5 +1,5 @@
 /** Server-issued HttpOnly session cookie. Browser code never receives the backend token. */
-export const MEMBER_TOKEN_COOKIE = "member_web_token";
+export const MEMBER_TOKEN_COOKIE = "public_web_token";
 
 /** 后端 JWT 有效期 8 小时（§1.6），文档 7.2 的 `expiresIn` 也是 28800 */
 export const MEMBER_TOKEN_MAX_AGE = 8 * 60 * 60;

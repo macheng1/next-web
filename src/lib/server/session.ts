@@ -11,6 +11,8 @@ export interface WebMember {
   nickname: string | null;
   avatarUrl: string | null;
   mustChangePassword: boolean;
+  emailVerified: boolean;
+  hasPassword: boolean;
 }
 export type SessionResult =
   | { status: "authenticated"; member: WebMember }
@@ -39,12 +41,14 @@ export async function resolveSession(
         nickname: typeof value.nickname === "string" ? value.nickname : null,
         avatarUrl: typeof value.avatarUrl === "string" ? value.avatarUrl : null,
         mustChangePassword: value.mustChangePassword === true,
+        emailVerified: value.emailVerified === true,
+        hasPassword: value.hasPassword === true,
       },
     };
   } catch (error) {
     if (
       error instanceof HttpError &&
-      (error.status === 401 || error.bizCode === 40001)
+      (error.status === 401 || error.status === 403 || error.bizCode === 40001)
     )
       return { status: "anonymous", invalidated: true };
     return { status: "unavailable" };
@@ -53,7 +57,7 @@ export async function resolveSession(
 export const getSession = cache(async (): Promise<SessionResult> => {
   const token = (await cookies()).get(MEMBER_TOKEN_COOKIE)?.value;
   return resolveSession(token, (value) =>
-    backendRequest("/web/members/me", {
+    backendRequest("/web/site-auth/me", {
       headers: { authorization: `Bearer ${value}` },
     }),
   );

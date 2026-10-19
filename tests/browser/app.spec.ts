@@ -52,8 +52,6 @@ test("retired pages and portal endpoints return 404 without legacy redirects", a
 }) => {
   for (const path of [
     "/portal/acme/zh",
-    "/login",
-    "/register",
     "/api/portal/acme/inquiry",
     "/api/upload/fileList",
   ]) {

@@ -1,0 +1,1 @@
+export function sessionResponseStatus(status:"authenticated"|"anonymous"|"unavailable",optional:boolean) {return optional ? 200 : status === "authenticated" ? 200 : status === "anonymous" ? 401 : 503;}

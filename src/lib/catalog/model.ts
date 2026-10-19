@@ -1,4 +1,5 @@
 export interface EnterpriseSummary {
+  canReceiveInquiries?: boolean;
   id: string;
   name: string;
   legalName?: string;
@@ -11,6 +12,7 @@ export interface EnterpriseSummary {
   foundedYear?: number | null;
 }
 export interface Product {
+  canInquire?: boolean;
   id: string;
   name: string;
   images: string[];
@@ -27,6 +29,7 @@ export interface Product {
   variantName: string;
   variants: {
     id: string;
+    unit?: "piece"|"set"|"kg"|"meter"|null;
     dimensionValues?: string[];
     value: string;
     imageUrl: string | null;
@@ -117,7 +120,7 @@ export interface CatalogHomeData {
 export function isCatalogPath(path: string): boolean {
   const uuid = "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
   return new RegExp(
-    `^(?:home|footer|options|products(?:/${uuid})?|enterprises(?:/${uuid}(?:/products)?)?)$`,
+    `^(?:home|footer|policies|options|products(?:/${uuid})?|enterprises(?:/${uuid}(?:/products)?)?)$`,
     "i",
   ).test(path);
 }
@@ -131,4 +134,10 @@ export interface CatalogFooterData {
   socialLinks?: Partial<
     Record<"x" | "instagram" | "linkedin" | "youtube" | "facebook", string>
   >;
+}
+
+export interface PublishedPolicies {
+  version: string;
+  terms: { title: string; body: string; format?: "text" | "html" };
+  privacy: { title: string; body: string; format?: "text" | "html" };
 }

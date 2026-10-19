@@ -1,3 +1,5 @@
+import { cleanPolicyHtml } from "@/src/lib/security/policy-html";
+import type { PublishedPolicies } from "@/src/lib/catalog/model";
 import { backendRequest } from "@/src/lib/server/backend";
 import { apiJson } from "@/src/lib/server/api-response";
 import { HttpError } from "@/src/lib/http/types";
@@ -14,6 +16,11 @@ export async function GET(
     const data = await backendRequest(
       `/web/catalog/${target}${query ? "?" + query : ""}`,
     );
+    if (target === "policies") {
+      const policy = data as PublishedPolicies;
+      const clean = (text: PublishedPolicies["privacy"]) => ({...text, body: text.format === "html" ? cleanPolicyHtml(text.body) : text.body});
+      return apiJson(request, {code: 200, data: {...policy, terms: clean(policy.terms), privacy: clean(policy.privacy)}});
+    }
     return apiJson(request, { code: 200, data });
   } catch (error) {
     const status =

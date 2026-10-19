@@ -1,113 +1,16 @@
-"use client";
-import { useState } from "react";
-import Image from "next/image";
-import Link from "next/link";
-import { IndustryBadge } from "./IndustryBadge";
-import { Button } from "../Button";
-import { useFoundation } from "../Providers";
-import { catalogCopy } from "@/src/lib/catalog/copy";
-import type { CatalogHomeData } from "@/src/lib/catalog/model";
-import { safeCatalogImage } from "@/src/lib/catalog/model";
-import { useCatalog } from "@/src/lib/catalog/use-catalog";
-import { CatalogShell, PageContainer } from "./CatalogShell";
-import { SearchBar } from "./SearchBar";
-import { ProductCard } from "./Cards";
-import { UsefulTools } from "./DesignPrimitives";
-import { CatalogState } from "./CatalogState";
-export function CatalogHome() {
-  const { locale } = useFoundation();
-  const t = catalogCopy(locale);
-  const [kind, setKind] = useState<"products" | "suppliers">("products");
-  const products = useCatalog<CatalogHomeData>("home");
-  return (
-    <CatalogShell>
-      <PageContainer>
-        <section className="relative overflow-hidden rounded-[10px] bg-jade-50">
-          <div className="relative z-10 px-6 pt-8 pb-4 sm:p-10 lg:w-[57%] lg:py-12">
-            <h1 className="max-w-xl text-3xl leading-tight font-bold sm:text-4xl lg:text-[42px]">
-              {products.data?.hero.title || t.heroTitle}
-            </h1>
-            <p className="mt-5 max-w-lg text-base text-ink-600">
-              {products.data?.hero.description || t.heroDescription}
-            </p>
-            <div className="mt-7 flex gap-2" role="group" aria-label={t.search}>
-              {(["products", "suppliers"] as const).map((k) => (
-                <Button
-                  radius={6}
-                  key={k}
-                  variant={kind === k ? "primary" : "outline"}
-                  aria-pressed={kind === k}
-                  onClick={() => setKind(k)}
-                >
-                  {t[k]}
-                </Button>
-              ))}
-            </div>
-            <div className="mt-3">
-              <SearchBar key={kind} kind={kind} />
-            </div>
-          </div>
-          <div className="relative aspect-[3/2] w-full lg:absolute lg:inset-y-0 lg:right-0 lg:h-full lg:w-[52%]">
-            <Image
-              src={safeCatalogImage(products.data?.imageUrl)||"/catalog/industrial-hero.webp"}
-              fill
-              alt={t.heroImage}
-              priority
-              sizes="(max-width: 1024px) 100vw, 50vw"
-              className="object-cover lg:object-right"
-            />
-            <div className="absolute inset-0 hidden bg-linear-to-r from-jade-50 via-transparent to-transparent lg:block" />
-          </div>
-        </section>
-        <section className="mt-7">
-          <h2 className="mb-4 text-xl font-semibold">{t.industries}</h2>
-          {products.data && !products.data.industries.length && <p className="mb-3 text-sm text-ink-500">{t.notProvided}</p>}
-          <div className="grid grid-cols-1 gap-3 min-[480px]:grid-cols-2 lg:grid-cols-4">
-            {(products.data?.industries ?? []).map(({ code: query, name, badge, badgeImage }) => (
-              <Link
-                key={query}
-                href={`/products?industry=${encodeURIComponent(query)}`}
-                className="flex min-h-20 min-w-0 items-center gap-3 rounded-[6px] border border-ink-100 bg-white p-3 hover:border-jade-400"
-              >
-                <span className="shrink-0 rounded-[6px] bg-jade-50 p-2 text-jade-700">
-                  <IndustryBadge image={badgeImage} badge={badge} />
-                </span>
-                <span className="min-w-0">
-                  <span className="block text-sm font-semibold">{name}</span>
-
-                </span>
-              </Link>
-            ))}
-          </div>
-        </section>
-        <div className="mt-7 grid items-start gap-6 lg:grid-cols-[minmax(0,3fr)_minmax(280px,1fr)]">
-          <section className="min-w-0">
-            <div className="mb-5 flex items-center justify-between gap-4">
-              <h2 className="text-xl font-semibold">{t.featured}</h2>
-              <Link
-                href="/products"
-                className="text-sm font-semibold text-jade-700"
-              >
-                {t.viewAll} →
-              </Link>
-            </div>
-            <CatalogState
-              loading={products.loading}
-              error={products.error}
-              empty={products.data?.products.length === 0}
-              retry={products.retry}
-            />
-            {products.data && (
-              <div className="grid grid-cols-1 gap-4 min-[480px]:grid-cols-2 lg:grid-cols-4">
-                {products.data.products.map((p) => (
-                  <ProductCard key={p.id} product={p} compact featured />
-                ))}
-              </div>
-            )}
-          </section>
-          <UsefulTools />
-        </div>
-      </PageContainer>
-    </CatalogShell>
-  );
-}
+'use client';
+import {useState} from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import {Button} from '../Button';
+import {useFoundation} from '../Providers';
+import {catalogCopy} from '@/src/lib/catalog/copy';
+import {buyerCopy} from '@/src/lib/buyer/copy';
+import {safeCatalogImage,type CatalogHomeData,type CatalogOptions,type CatalogPage,type EnterpriseSummary} from '@/src/lib/catalog/model';
+import {useCatalog} from '@/src/lib/catalog/use-catalog';
+import {CatalogShell,PageContainer} from './CatalogShell';
+import {SearchBar} from './SearchBar';
+import {ProductCard,EnterpriseCard} from './Cards';
+import {IndustryBadge} from './IndustryBadge';
+import {CatalogState} from './CatalogState';
+export function CatalogHome(){const {locale}=useFoundation(),t=catalogCopy(locale),b=buyerCopy(locale);const [kind,setKind]=useState<'products'|'suppliers'>('products');const home=useCatalog<CatalogHomeData>('home'),options=useCatalog<CatalogOptions>('options'),suppliers=useCatalog<CatalogPage<EnterpriseSummary>>('enterprises?pageSize=3');const categories=options.data?.categoryOptions||options.data?.categories.map(value=>({value,label:value,count:0}))||[];return <CatalogShell><PageContainer><section className='grid gap-8 py-8 lg:grid-cols-[1.1fr_1fr] lg:py-12'><div className='min-w-0'><p className='text-xs uppercase tracking-widest text-jade-700'>MANULINK</p><h1 className='mt-5 max-w-xl text-4xl font-semibold leading-tight tracking-tight lg:text-5xl'>{home.data?.hero.title||t.heroTitle}</h1><p className='mt-6 max-w-lg text-base leading-8 text-ink-600'>{home.data?.hero.description||t.heroDescription}</p><div className='mt-8 flex gap-4' role='group' aria-label={t.search}>{(['products','suppliers'] as const).map(k=><Button radius={6} key={k} variant={kind===k?'primary':'outline'} aria-pressed={kind===k} onClick={()=>setKind(k)}>{t[k]}</Button>)}</div><div className='mt-4'><SearchBar kind={kind}/></div><div className='mt-4 flex flex-wrap gap-3 text-sm text-jade-700'>{categories.slice(0,3).map(c=><Link href={'/products?category='+encodeURIComponent(c.value)} key={c.value}>{c.label} →</Link>)}</div></div><div className='relative min-h-64 overflow-hidden rounded-xl bg-jade-50 lg:min-h-96'><Image src={safeCatalogImage(home.data?.imageUrl)||'/catalog/industrial-hero.webp'} fill priority sizes='(max-width: 1024px) 100vw, 50vw' alt={t.heroImage} className='object-cover object-right'/></div></section><section className='border-y border-ink-100 py-6'><div className='flex items-center justify-between'><h2 className='text-xl font-semibold'>{locale==='en'?'Explore product categories':'按产品分类浏览'}</h2><Link href='/products' className='text-sm text-jade-700'>{t.viewAll} →</Link></div><CatalogState loading={options.loading} error={options.error} retry={options.retry}/><div className='mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6'>{categories.slice(0,6).map(c=><Link key={c.value} href={'/products?category='+encodeURIComponent(c.value)} className='rounded-lg border border-ink-100 bg-white p-5 text-sm font-semibold text-jade-800 hover:border-jade-400'>{c.label}</Link>)}</div></section><section className='mt-6 flex flex-wrap items-center gap-3'>{home.data?.industries.map(industry=><Link key={industry.code} href={'/products?industry='+encodeURIComponent(industry.code)} className='inline-flex items-center gap-2 rounded-md border border-ink-100 px-4 py-2 text-sm text-jade-800'><IndustryBadge image={industry.badgeImage} badge={industry.badge}/>{industry.name}</Link>)}</section><section className='py-10'><div className='mb-6 flex justify-between'><h2 className='text-2xl font-semibold'>{t.featured}</h2><Link href='/products' className='text-sm text-jade-700'>{t.viewAll} →</Link></div><CatalogState loading={home.loading} error={home.error} empty={home.data?.products.length===0} retry={home.retry}/><div className='grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 lg:grid-cols-4'>{home.data?.products.slice(0,4).map(p=><ProductCard key={p.id} product={p} compact/>)}</div></section><section className='rounded-xl bg-jade-50 p-6 sm:p-8'><div className='mb-6 flex justify-between gap-4'><h2 className='text-2xl font-semibold'>{t.suppliers}</h2><Link href='/suppliers' className='text-sm text-jade-700'>{t.viewAll} →</Link></div><CatalogState loading={suppliers.loading} error={suppliers.error} empty={suppliers.data?.items.length===0} retry={suppliers.retry}/><div className='grid gap-5 lg:grid-cols-3'>{suppliers.data?.items.map(e=><EnterpriseCard key={e.id} enterprise={e}/>)}</div></section><section id='how' className='grid gap-8 py-12 lg:grid-cols-[1fr_2fr]'><h2 className='text-2xl font-semibold'>{b.how}</h2><div className='grid gap-6 sm:grid-cols-3'>{[[b.step1,b.step1Text],[b.step2,b.step2Text],[b.step3,b.step3Text]].map(([title,text],i)=><article key={title}><span className='text-xl text-jade-700'>0{i+1}</span><h3 className='my-4 text-base font-semibold'>{title}</h3><p className='text-sm leading-7 text-ink-600'>{text}</p></article>)}</div></section></PageContainer></CatalogShell>;}

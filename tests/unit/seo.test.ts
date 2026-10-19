@@ -27,6 +27,9 @@ it("blocks test indexing and does not invent tenant URLs", () => {
     "https://directory.test/",
     "https://directory.test/products",
     "https://directory.test/suppliers",
+    "https://directory.test/terms",
+    "https://directory.test/privacy",
+    "https://directory.test/cookies",
   ]);
 });
 it("keeps language links to explicit paths and refuses absolute path injection", () => {

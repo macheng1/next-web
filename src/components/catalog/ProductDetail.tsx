@@ -1,4 +1,6 @@
 "use client";
+import { unitLabel } from "@/src/lib/buyer/copy";
+import { ProductBuyerActions } from "../buyer/ProductBuyerActions";
 import { useState } from "react";
 import Link from "next/link";
 import type { Product } from "@/src/lib/catalog/model";
@@ -11,12 +13,9 @@ import { CatalogState } from "./CatalogState";
 import { CatalogImage } from "./CatalogImage";
 import { VariantPicker } from "./VariantPicker";
 import { SupplierSummary } from "./SupplierSummary";
-import { ComingSoon, Chips } from "./DesignPrimitives";
+import { Chips } from "./DesignPrimitives";
 import { InputNumber } from "@douyinfe/semi-ui-19";
 import {
-  IconComment,
-  IconHeartStroked,
-  IconShareStroked,
   IconPlus,
   IconMinus,
 } from "@douyinfe/semi-icons";
@@ -27,6 +26,8 @@ function DetailContent({ product: p }: { product: Product }) {
   const [image, setImage] = useState(0);
   const [quantity, setQuantity] = useState(100);
   const selected = p.variants[variant];
+  const fractional = selected?.unit === "kg" || selected?.unit === "meter";
+  const minQuantity = fractional ? 0.001 : 1;
   const images = [
     ...new Set(
       [selected?.imageUrl, ...p.images].filter((v): v is string => !!v),
@@ -82,14 +83,8 @@ function DetailContent({ product: p }: { product: Product }) {
                 (v): v is string => !!v,
               )}
             />
-            <ComingSoon compact>
-              <IconHeartStroked aria-hidden />
-              {t.favorite}
-            </ComingSoon>
-            <ComingSoon compact>
-              <IconShareStroked aria-hidden />
-              {t.share}
-            </ComingSoon>
+
+
           </div>
           <p className="mt-4 whitespace-pre-wrap break-words text-ink-600">
             {p.description || t.notProvided}
@@ -170,17 +165,17 @@ function DetailContent({ product: p }: { product: Product }) {
                   aria-label={
                     locale === "en" ? "Decrease quantity" : "减少数量"
                   }
-                  disabled={quantity <= 1}
+                  disabled={quantity <= minQuantity}
                   icon={<IconMinus />}
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  onClick={() => setQuantity(Math.max(minQuantity, quantity - 1))}
                 />
                 <InputNumber
                   hideButtons
                   className="w-24!"
                   aria-labelledby="product-quantity"
-                  min={1}
-                  max={1000000}
-                  precision={0}
+                  min={minQuantity}
+                  max={999999999}
+                  precision={fractional ? 3 : 0}
                   value={quantity}
                   onChange={(v) => setQuantity(typeof v === "number" ? v : 1)}
                 />
@@ -191,17 +186,14 @@ function DetailContent({ product: p }: { product: Product }) {
                   aria-label={
                     locale === "en" ? "Increase quantity" : "增加数量"
                   }
-                  disabled={quantity >= 1000000}
+                  disabled={quantity >= 999999999}
                   icon={<IconPlus />}
-                  onClick={() => setQuantity(Math.min(1000000, quantity + 1))}
+                  onClick={() => setQuantity(Math.min(999999999, quantity + 1))}
                 />
               </span>{" "}
-              <span className="font-normal text-ink-500">{p.unit || ""}</span>
+              <span className="font-normal text-ink-500">{selected?.unit ? unitLabel(selected.unit, locale) : p.unit || ""}</span>
             </div>
-            <ComingSoon prominent>
-              <IconComment />
-              {t.sendInquiry}
-            </ComingSoon>
+            <ProductBuyerActions product={p} variantIndex={variant} quantity={quantity}/>
           </div>
         </section>
         <aside className="lg:col-start-3 lg:row-start-1">

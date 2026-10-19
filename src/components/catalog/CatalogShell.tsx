@@ -1,13 +1,15 @@
 "use client";
+import { PublicBuyerNav } from "../buyer/PublicBuyerNav";
 import {BrandLogo} from "./BrandLogo";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { IconMenu, IconClose } from "@douyinfe/semi-icons";
 import { Button } from "../Button";
 import { useFoundation } from "../Providers";
+import { checkSession } from "@/src/lib/auth-api";
+import { authCopy } from "@/src/lib/auth/copy";
 import { catalogCopy } from "@/src/lib/catalog/copy";
-import { ComingSoon } from "./DesignPrimitives";
 import { LanguageSelect } from "./LanguageSelect";
 import { CatalogFooter } from "./CatalogFooter";
 export const linkButton =
@@ -17,10 +19,13 @@ export function CatalogShell({ children }: { children: ReactNode }) {
   const t = catalogCopy(locale);
   const path = usePathname();
   const [open, setOpen] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  useEffect(() => {let active=true;void checkSession().then((session) => {if(active && session.status!=="unavailable")setSignedIn(session.status==="authenticated");}).catch(() => {});return () => {active=false;};}, [path]);
+  const authLabel=signedIn ? authCopy(locale).accountTitle : t.signIn;
   const links = [
     ["/products", t.products],
     ["/suppliers", t.suppliers],
-    ["/#useful-tools", t.tools],
+    ["/#how", locale==="en"?"How it works":"使用流程"],
   ];
   return (
     <div className="flex min-h-dvh flex-col bg-white text-ink-900">
@@ -46,17 +51,9 @@ export function CatalogShell({ children }: { children: ReactNode }) {
           </nav>
           <div className="ml-auto flex items-center gap-2 lg:ml-0">
             <LanguageSelect />
-            <span className="hidden border-l border-ink-100 pl-3 xl:block">
-              <ComingSoon compact>{t.portal}</ComingSoon>
-            </span>
-            <div className="hidden sm:block">
-              <Link href="/enterprise/apply" className={linkButton}>
-                {t.join}
-              </Link>
-            </div>
-            <span className="hidden xl:block">
-              <ComingSoon compact>{t.signIn}</ComingSoon>
-            </span>
+
+
+            <span className="hidden lg:block">{signedIn?<PublicBuyerNav/>:<Link href="/login" className="text-sm font-semibold text-jade-700">{authLabel}</Link>}</span>
             <Button
               radius={6}
               variant="ghost"
@@ -74,7 +71,7 @@ export function CatalogShell({ children }: { children: ReactNode }) {
               aria-label={t.menu}
               className="flex w-full flex-col border-t border-ink-100 pt-2 lg:hidden"
             >
-              {[...links, ["/enterprise/apply", t.join]].map(
+              {links.map(
                 ([href, label]) => (
                   <Link
                     key={href}
@@ -87,8 +84,8 @@ export function CatalogShell({ children }: { children: ReactNode }) {
                 ),
               )}
               <div className="flex flex-wrap gap-2 py-3">
-                <ComingSoon>{t.portal}</ComingSoon>
-                <ComingSoon>{t.signIn}</ComingSoon>
+
+                <Link href={signedIn?"/buyer":"/login"} className="py-2 font-semibold text-jade-700" onClick={() => setOpen(false)}>{authLabel}</Link>
               </div>
             </nav>
           )}

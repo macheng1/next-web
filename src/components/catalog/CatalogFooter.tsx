@@ -10,7 +10,8 @@ import {LanguageSelect} from "./LanguageSelect";
 function safeHref(href:string){if(/[\\\s]/.test(href))return false;if(href.startsWith('/'))return !href.startsWith('//');try{const u=new URL(href);return u.protocol==='https:'&&!u.username&&!u.password;}catch{return false;}}
 export function CatalogFooter(){
  const {locale}=useFoundation();const t=catalogCopy(locale);const {data}=useCatalog<CatalogFooterData>('footer');
- const groups=data?.groups??[{title:t.footerExplore,links:[{label:t.home,href:'/'},{label:t.products,href:'/products'},{label:t.suppliers,href:'/suppliers'}]},{title:t.footerEnterprise,links:[{label:t.join,href:'/enterprise/apply'}]},{title:locale==='en'?'Platform':'平台信息',links:[]}];
+ const rawGroups=data?.groups??[{title:t.footerExplore,links:[{label:t.home,href:'/'},{label:t.products,href:'/products'},{label:t.suppliers,href:'/suppliers'}]},{title:locale==='en'?'Buyer workspace':'买家中心',links:[{label:locale==='en'?'My inquiries':'我的询盘',href:'/buyer/inquiries'},{label:locale==='en'?'Saved items':'我的收藏',href:'/buyer/saved'}]},{title:locale==='en'?'Platform':'平台信息',links:[{label:locale==='en'?'Terms of Service':'用户协议',href:'/terms'},{label:locale==='en'?'Privacy policy':'隐私政策',href:'/privacy'},{label:locale==='en'?'Cookie policy':'Cookie 政策',href:'/cookies'}]}];
+ const groups=rawGroups.map(g=>({...g,links:g.links.filter(l=>!l.href.startsWith('/enterprise/apply'))})).filter(g=>g.links.length);
  const company=data?.companyName||(locale==='en'?'Wuxi Yuansi Technology Co., Ltd.':'无锡元思科技有限公司');
  return <footer className="mt-16 shrink-0 bg-[#102e2a] text-white"><div className="mx-auto max-w-7xl px-4 pt-10 pb-6 sm:px-6 lg:px-8">
  <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-[minmax(0,1.6fr)_repeat(3,minmax(0,1fr))] lg:gap-10">

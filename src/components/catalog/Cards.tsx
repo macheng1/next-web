@@ -5,17 +5,14 @@ import type { Product, EnterpriseSummary } from "@/src/lib/catalog/model";
 import { catalogCopy } from "@/src/lib/catalog/copy";
 import { useFoundation } from "../Providers";
 import { CatalogImage } from "./CatalogImage";
-import { ComingSoon } from "./DesignPrimitives";
 import { linkButton } from "./CatalogShell";
 export function ProductCard({
   product,
   compact = false,
-  featured = false,
   horizontal = false,
 }: {
   product: Product;
   compact?: boolean;
-  featured?: boolean;
   horizontal?: boolean;
 }) {
   const { locale } = useFoundation();
@@ -46,16 +43,12 @@ export function ProductCard({
           {[product.material, product.connection].filter(Boolean).join(" · ") ||
             product.category}
         </p>
-        {featured ? (
-          <ComingSoon compact>{t.requestPricing}</ComingSoon>
-        ) : (
           <Link
             href={`/products/${product.id}`}
             className={`${linkButton} mt-auto ${horizontal ? "min-h-9 px-2 text-xs" : ""}`}
           >
             {t.viewDetails} →
           </Link>
-        )}
       </div>
     </article>
   );

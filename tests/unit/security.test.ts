@@ -103,3 +103,11 @@ it("allows supported OSS videos without widening script or arbitrary media origi
     "media-src 'self' https://macheng123.oss-cn-hangzhou.aliyuncs.com",
   );
 });
+
+it("policy HTML preserves formatting and removes executable or tracking content", async () => {
+  const { cleanPolicyHtml } = await import("../../src/lib/security/policy-html");
+  const result = cleanPolicyHtml('<h2>Scope</h2><ul><li><strong>Item</strong></li></ul><script>evil()</script><img src="https://tracking.test/pixel"><p onclick="evil()" style="background-image:url(https://tracking.test/x)">Text</p><a href="javascript:evil()">link</a>');
+  expect(result).toContain('<h2>Scope</h2>');
+  expect(result).toContain('<ul><li><strong>Item</strong></li></ul>');
+  expect(result).not.toMatch(/script|onclick|tracking\.test|javascript:|background-image/);
+});

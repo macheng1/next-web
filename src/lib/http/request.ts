@@ -115,6 +115,7 @@ export async function requestJson<T>(
   const payload: unknown = await response.json().catch(() => null);
   const code = readBizCode(payload);
   const trace = response.headers.get("x-trace-id") || undefined;
+  const errorKey = payload && typeof payload === "object" && "errorKey" in payload && typeof payload.errorKey === "string" ? payload.errorKey : undefined;
   if (!response.ok)
     throw new HttpError(
       "http",
@@ -122,6 +123,7 @@ export async function requestJson<T>(
       response.status,
       code ?? undefined,
       trace,
+      errorKey,
     );
   if (code !== null && code !== BIZ_CODE_OK)
     throw new HttpError(
@@ -130,6 +132,7 @@ export async function requestJson<T>(
       response.status,
       code,
       trace,
+      errorKey,
     );
   if (payload === null)
     throw new HttpError("http", fallback, 502, undefined, trace);

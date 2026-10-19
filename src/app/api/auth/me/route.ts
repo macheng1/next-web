@@ -1,3 +1,4 @@
+import { sessionResponseStatus } from "@/src/lib/auth/session-status";
 import { apiJson } from "@/src/lib/server/api-response";
 import { getSession } from "@/src/lib/server/session";
 import {
@@ -6,17 +7,13 @@ import {
 } from "@/src/lib/auth-token";
 export async function GET(request: Request) {
   const session = await getSession();
-  const status =
-    session.status === "authenticated"
-      ? 200
-      : session.status === "anonymous"
-        ? 401
-        : 503;
+  const optional = new URL(request.url).searchParams.get("optional") === "1";
+  const status = sessionResponseStatus(session.status, optional);
   const response = apiJson(
     request,
     {
       code: status,
-      data: session.status === "authenticated" ? session.member : null,
+      data: optional ? session : session.status === "authenticated" ? session.member : null,
       errorKey:
         status === 503
           ? "service_unavailable"

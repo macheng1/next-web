@@ -1,4 +1,6 @@
 "use client";
+import { FavoriteAction } from "../buyer/ProductBuyerActions";
+import { buyerCopy } from "@/src/lib/buyer/copy";
 import { useState } from "react";
 import Link from "next/link";
 import type { Enterprise, Product, CatalogPage } from "@/src/lib/catalog/model";
@@ -11,8 +13,14 @@ import { CatalogState } from "./CatalogState";
 import { CatalogImage } from "./CatalogImage";
 import { EnterpriseFacts } from "./EnterpriseFacts";
 import { ProductGrid, ProductCard } from "./Cards";
-import { ComingSoon, Chips, ContactCard } from "./DesignPrimitives";
+import { Chips } from "./DesignPrimitives";
 import { IconMapPin, IconComment } from "@douyinfe/semi-icons";
+function EnterpriseInquiry({ enterprise }: { enterprise: Enterprise }) {
+  const { locale } = useFoundation();
+  const t = buyerCopy(locale);
+  if (enterprise.canReceiveInquiries === false) return <p className="text-sm text-ink-600">{locale === "en" ? "This supplier is not currently accepting inquiries." : "企业暂未开通询盘处理。"}</p>;
+  return <Link href={"/buyer/inquiries/new?enterpriseId=" + encodeURIComponent(enterprise.id)} className="inline-flex min-h-11 items-center gap-2 rounded-md bg-jade-700 px-5 py-3 font-semibold text-white"><IconComment />{t.inquireCompany}</Link>;
+}
 function EnterpriseContent({ enterprise: e }: { enterprise: Enterprise }) {
   const { locale } = useFoundation();
   const t = catalogCopy(locale);
@@ -63,10 +71,7 @@ function EnterpriseContent({ enterprise: e }: { enterprise: Enterprise }) {
             )}
           </div>
           <div className="shrink-0">
-            <ComingSoon prominent>
-              <IconComment />
-              {t.sendInquiry}
-            </ComingSoon>
+            <EnterpriseInquiry enterprise={e} />
           </div>
         </div>
       </section>
@@ -110,9 +115,14 @@ function EnterpriseContent({ enterprise: e }: { enterprise: Enterprise }) {
               />
             </div>
           )}
-          <ContactCard />
+          <aside className="rounded-md border border-jade-100 bg-jade-50 p-4">
+            <h3 className="font-semibold">{t.contact}</h3>
+            <p className="my-3 text-sm text-ink-600">{buyerCopy(locale).groupHint}</p>
+            <EnterpriseInquiry enterprise={e} />
+          </aside>
         </section>
       )}
+      <div className="my-5"><FavoriteAction id={e.id} type="enterprise" /></div>
       {tab === "companyProfile" && (
         <section className="mb-7 rounded-[8px] border border-ink-100 bg-white p-6">
           <h2 className="mb-4 text-xl font-semibold">{t.companyProfile}</h2>

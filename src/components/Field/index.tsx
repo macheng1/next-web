@@ -122,7 +122,7 @@ export function FieldShell({
         {(label || labelExtra) && (
           <div className="flex items-center justify-between gap-2">
             {label ? (
-              <label htmlFor={fieldId} className="text-[12.5px] font-semibold text-ink-700">
+              <label id={`${fieldId}-label`} htmlFor={fieldId} className="text-[12.5px] font-semibold text-ink-700">
                 {label}
                 {required && (
                   <span aria-hidden="true" className="ml-0.5 text-error">
@@ -245,6 +245,7 @@ export function Field({
             {...(rest as unknown as SemiTextAreaProps)}
             id={fieldId}
             rows={rows}
+            required={required}
             showCounter={showCounter}
             validateStatus={error ? "error" : "default"}
             aria-invalid={error ? true : undefined}
@@ -259,6 +260,7 @@ export function Field({
           <SemiInput
             {...rest}
             id={fieldId}
+            required={required}
             validateStatus={error ? "error" : "default"}
             aria-invalid={error ? true : undefined}
             aria-required={required || undefined}

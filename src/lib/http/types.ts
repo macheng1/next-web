@@ -6,6 +6,7 @@ export class HttpError extends Error {
     public status?: number,
     public bizCode?: number,
     public traceId?: string,
+    public errorKey?: string,
   ) {
     super(message);
     this.name = "HttpError";
