@@ -269,7 +269,7 @@ for (const lang of ["en", "zh"])
           JSON.stringify(overflow),
         ).toBe(false);
         await page.screenshot({
-          path: `/Users/aldrich/Documents/Codex/2026-09-15/jie/outputs/buyer-workspace-verification/${lang}-${screen}-${width}.png`,
+          path: test.info().outputPath(`${lang}-${screen}-${width}.png`),
           fullPage: true,
         });
       }

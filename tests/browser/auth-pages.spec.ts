@@ -37,7 +37,7 @@ for (const locale of ["en", "zh"] as const) {
     await page.evaluate(() => document.fonts.ready);
     await page.waitForTimeout(150);
     await page.screenshot({
-      path: `/Users/aldrich/Documents/Codex/2026-09-15/jie/outputs/web-auth-implementation/login-${locale}-desktop.png`,
+      path: test.info().outputPath(`login-${locale}-desktop.png`),
       fullPage: true,
     });
     await page.goto("/register");
@@ -47,12 +47,12 @@ for (const locale of ["en", "zh"] as const) {
       }),
     ).toBeVisible();
     await page.screenshot({
-      path: `/Users/aldrich/Documents/Codex/2026-09-15/jie/outputs/web-auth-implementation/register-${locale}-desktop.png`,
+      path: test.info().outputPath(`register-${locale}-desktop.png`),
       fullPage: true,
     });
     await page.setViewportSize({ width: 390, height: 844 });
     await page.screenshot({
-      path: `/Users/aldrich/Documents/Codex/2026-09-15/jie/outputs/web-auth-implementation/register-${locale}-mobile.png`,
+      path: test.info().outputPath(`register-${locale}-mobile.png`),
       fullPage: true,
     });
     expect(
@@ -103,5 +103,5 @@ test("published policy HTML renders headings and lists rather than raw tags", as
   await expect(page.getByRole("heading", {name: "Account use", exact: true})).toBeVisible();
   await expect(page.locator("article li")).toHaveCount(2);
   await expect(page.locator(".policy-rich-text")).toBeVisible();
-  await page.screenshot({path: '/Users/aldrich/Documents/Codex/2026-09-15/jie/outputs/policy-drafts/rich-text-verification.png', fullPage: true});
+  await page.screenshot({path: test.info().outputPath("rich-text-verification.png"), fullPage: true});
 });
