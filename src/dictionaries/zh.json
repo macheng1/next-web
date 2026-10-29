@@ -40,7 +40,16 @@
       "invalid_avatar": "请选择有效的 JPG、PNG 或 WebP 图片。",
       "terms_changed": "协议已更新，请重新阅读并勾选后再试。",
       "terms_required": "请先阅读并同意服务条款与隐私政策。",
-      "session_changed": "账号已切换，请刷新页面后继续。"
+      "session_changed": "账号已切换，请刷新页面后继续。",
+      "google_unavailable": "Google 登录暂时不可用，请稍后重试。",
+      "google_invalid": "无法验证 Google 授权，请重新开始。",
+      "google_pending_expired": "本次 Google 登录已过期，请重新开始。",
+      "google_already_bound": "此 Google 账号已关联其他账号。",
+      "google_email_verification_required": "请验证邮箱后再完成 Google 登录。",
+      "google_not_bound": "尚未关联 Google 账号，请刷新后重试。",
+      "password_required": "请先设置邮箱密码，再解除 Google 关联。",
+      "password_already_set": "此账号已设置密码，请使用修改密码。",
+      "email_verification_required": "此操作需要已验证的账号邮箱。"
     },
     "siteTitle": "制造帮",
     "siteDescription": "欢迎访问"

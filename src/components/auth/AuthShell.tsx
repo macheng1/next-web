@@ -58,7 +58,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
     <div className={styles.shell} data-locale={locale}>
       <header className={styles.header}>
         <Link href="/">
-          <BrandLogo />
+          <BrandLogo variant="auth" />
         </Link>
         <nav className={styles.nav}>
           <Link href="/">{t.backSite}</Link>

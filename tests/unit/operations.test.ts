@@ -23,6 +23,8 @@ it("readiness fails on missing or unhealthy dependencies but liveness stays up",
     deploymentEnv: "test" as const,
     siteUrl: "http://localhost:3000",
     trustedOrigins: [],
+    trustProxy: false,
+    devAllowedOrigins: [],
   };
   expect(await checkReadiness(config)).toBe(false);
   vi.stubGlobal(
@@ -65,6 +67,8 @@ it("wx-backend alone is enough for new website readiness and release", async () 
       deploymentEnv: "development",
       siteUrl: "http://localhost:3000",
       trustedOrigins: [],
+    trustProxy: false,
+    devAllowedOrigins: [],
       memberApiUrl: "https://dev.api.shopai.org.cn/api/v1",
     }),
   ).toBe(true);

@@ -1,3 +1,4 @@
+import { getServerConfig } from "@/src/lib/server/config";
 import { LoginForm } from "@/src/components/auth/LoginForm";
 export const dynamic = "force-dynamic";
 export default async function Page({
@@ -6,5 +7,5 @@ export default async function Page({
   searchParams: Promise<{ returnTo?: string; reason?: string; token?: string }>;
 }) {
   const params = await searchParams;
-  return <LoginForm returnTo={params.returnTo} reason={params.reason} />;
+  return <LoginForm returnTo={params.returnTo} reason={params.reason} googleAvailable={Boolean(getServerConfig().google)} />;
 }

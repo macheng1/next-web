@@ -40,7 +40,7 @@ export function proxy(req: NextRequest) {
     });
   }
   for (const header of security) response.headers.set(header.key, header.value);
-  if (["login", "register", "forgot-password", "reset-password", "account"].includes(segments[0] || "")) {
+  if (["login", "register", "forgot-password", "reset-password", "account", "google"].includes(segments[0] || "")) {
     response.headers.set("Cache-Control", "no-store");
     response.headers.set("Referrer-Policy", "no-referrer");
   }

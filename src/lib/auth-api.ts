@@ -102,3 +102,13 @@ export function checkSession() {
     cache: "no-store",
   });
 }
+
+export interface GooglePending { pendingId: string; mode: "register" | "link"; email: string; nickname: string; requiresEmailVerification: boolean; passwordAvailable: boolean; canSendCode: boolean }
+export function googlePending() { return submit<GooglePending>("google/pending",{}); }
+export function googleSendCode(locale: Locale, pendingId: string) { return submit<{retryAfter:number}>("google/send-code",{locale,pendingId}); }
+export async function googleComplete(input: object) {const result=await submit<LoginResult & {returnTo:string}>("google/complete",input);signalSessionChange();return result;}
+export function googleStatus() { return requestJson<{bound:boolean;email:string|null}>("/api/auth/google/status",{cache:"no-store"}); }
+export async function googleSecurity(action: "security-code" | "prepare" | "unlink" | "set-password",memberId:string,input:object) {
+  const result=await submit<{retryAfter?:number}>(`google/${action}`,input,{headers:{"x-expected-member-id":memberId}});
+  if(action === "unlink" || action === "set-password") signalSessionChange(); return result;
+}

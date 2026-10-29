@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { GoogleButton } from "./GoogleButton";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { login } from "@/src/lib/auth-api";
@@ -11,9 +12,11 @@ import styles from "./auth.module.css";
 export function LoginForm({
   returnTo = "/buyer",
   reason,
+  googleAvailable = false,
 }: {
   returnTo?: string;
   reason?: string;
+  googleAvailable?: boolean;
 }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,6 +34,16 @@ export function LoginForm({
           {t.resetDone}
         </p>
       )}
+      {reason?.startsWith("google-") && (
+        <p role="status" className={styles.notice}>
+          {reason === "google-cancelled" ? t.googleCancelled : reason === "google-unlinked" ? t.googleUnlinked : t.googleInvalid}
+        </p>
+      )}
+      {googleAvailable && <>
+      <GoogleButton returnTo={returnTo} disabled={task.pending} />
+      <p className={styles.hint}>{t.googleAuthorizationHint}</p>
+      <div className={styles.divider}><span>{t.orEmail}</span></div>
+      </>}
       <form
         onSubmit={(event) => {
           event.preventDefault();

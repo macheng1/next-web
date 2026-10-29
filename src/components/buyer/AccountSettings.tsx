@@ -9,12 +9,13 @@ import { AccountProfileForm } from "../auth/AccountProfileForm";
 import { ChangePasswordForm } from "../auth/ChangePasswordForm";
 import { useAuthTask } from "../auth/use-auth-task";
 import { AuthError } from "../auth/AuthField";
+import { GoogleSecurityMethods } from "../auth/GoogleSecurityMethods";
 import { logout } from "@/src/lib/auth-api";
 import { buyerCopy } from "@/src/lib/buyer/copy";
 import { useBuyerMember } from "./BuyerShell";
 import { BuyerHead } from "./BuyerUI";
 import styles from "./buyer.module.css";
-export function AccountSettings() {
+export function AccountSettings({googleAvailable = false,reason}:{googleAvailable?:boolean;reason?:string}) {
   const member = useBuyerMember(),
     { locale } = useFoundation(),
     t = buyerCopy(locale),
@@ -24,6 +25,7 @@ export function AccountSettings() {
   return (
     <>
       <BuyerHead title={t.security} intro={t.accountSettingsIntro} />
+      {reason?.startsWith("google-") && <p role="status">{reason === "google-linked" ? task.t.googleLinked : reason === "google-cancelled" ? task.t.googleCancelled : task.t.googleInvalid}</p>}
       <section
         className={`${styles.panel} ${styles.accountIdentity}`}
         aria-label={task.t.accountTitle}
@@ -67,6 +69,7 @@ export function AccountSettings() {
               <p>{t.passwordNotAvailable}</p>
             </>
           )}
+          <GoogleSecurityMethods key={member.id} member={member} googleAvailable={googleAvailable} />
           <div className={styles.signOutSection}>
             <h2>{task.t.signOut}</h2>
             <p>{t.signOutHint}</p>

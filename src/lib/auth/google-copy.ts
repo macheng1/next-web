@@ -1,0 +1,58 @@
+import type { Locale } from "../i18n/locale";
+const en = {
+  completeTitle: "Complete Google sign-in",
+  registerIntro: "Create your account with this Google email.",
+  linkIntro:
+    "An account already uses this email. Verify that account before connecting Google.",
+  nickname: "Display name",
+  continue: "Continue",
+  sendCode: "Send email code",
+  useCode: "Use email code",
+  usePassword: "Use account password",
+  restart: "Start again with Google",
+  methods: "Sign-in methods",
+  bind: "Connect Google",
+  unlink: "Disconnect Google",
+  bound: "Google connected",
+  unbound: "Google is not connected",
+  setPassword: "Set an email password",
+  proof: "Verify your identity to continue.",
+  unlinkConfirm: "Disconnecting Google signs you out on all devices. Continue?",
+  lastMethod: "Set an email password before disconnecting Google.",
+  linked: "Google account connected.",
+  noEmailProof:
+    "Email verification is unavailable for this account. Use your current password.",
+  policyUnavailable: "Policies are unavailable. Please retry.",
+  done: "Save and sign out",
+  noProof: "This account cannot currently verify ownership. Contact support.",
+  cancelled: "Cancel",
+};
+const zh: typeof en = {
+  completeTitle: "完成 Google 登录",
+  registerIntro: "使用此 Google 邮箱创建账号。",
+  linkIntro: "此邮箱已有账号。请先验证原账号，再关联 Google。",
+  nickname: "昵称",
+  continue: "继续",
+  sendCode: "发送邮箱验证码",
+  useCode: "使用邮箱验证码",
+  usePassword: "使用账号密码",
+  restart: "重新使用 Google 登录",
+  methods: "登录方式",
+  bind: "关联 Google",
+  unlink: "解除 Google 关联",
+  bound: "已关联 Google",
+  unbound: "尚未关联 Google",
+  setPassword: "设置邮箱密码",
+  proof: "请先验证身份后继续。",
+  unlinkConfirm: "解除 Google 关联后，所有设备都会退出登录。是否继续？",
+  lastMethod: "请先设置邮箱密码，再解除 Google 关联。",
+  linked: "Google 账号已关联。",
+  noEmailProof: "此账号暂不能使用邮箱验证，请使用当前密码。",
+  policyUnavailable: "无法加载协议，请重试。",
+  done: "保存并退出登录",
+  noProof: "此账号暂时无法验证身份，请联系客服。",
+  cancelled: "取消",
+};
+export function googleCopy(locale: Locale) {
+  return locale === "en" ? en : zh;
+}

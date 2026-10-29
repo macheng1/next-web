@@ -6,7 +6,7 @@ import { getServerConfig } from "./config";
 import { fetchResponse, requestJson } from "../http/request";
 import type { RequestOptions } from "../http/types";
 export type SiteAuthPath =
-  `/web/site-auth/${"login" | "register" | "register/send-code" | "register/verify-email" | "forgot-password" | "reset-password" | "me" | "me/profile" | "me/avatar" | "me/change-password"}`;
+  `/web/site-auth/${"login" | "register" | "register/send-code" | "register/verify-email" | "forgot-password" | "reset-password" | "me" | "me/profile" | "me/avatar" | "me/change-password" | "google/exchange" | "google/pending" | "google/send-code" | "google/complete" | "me/google" | "me/google/send-code" | "me/google/prepare" | "me/google/unlink" | "me/password/set"}`;
 export type BackendPath =
   | `/web/buyer/${string}`
   | SiteAuthPath
@@ -29,7 +29,7 @@ function destination(path: BackendPath): string {
     !path.includes("#") &&
     isCatalogPath(path.slice("/web/catalog/".length).split("?")[0]);
   const siteAuthValid =
-    /^\/web\/site-auth\/(?:login|register(?:\/(?:send-code|verify-email))?|forgot-password|reset-password|me(?:\/(?:profile|avatar|change-password))?)$/.test(
+    /^\/web\/site-auth\/(?:login|register(?:\/(?:send-code|verify-email))?|forgot-password|reset-password|google\/(?:exchange|pending|send-code|complete)|me(?:\/(?:profile|avatar|change-password|password\/set|google(?:\/(?:send-code|prepare|unlink))?))?)$/.test(
       path,
     );
   if (
@@ -58,10 +58,11 @@ function outbound(options: RequestOptions): RequestOptions {
     const value = input.get(name);
     if (value) headers.set(name, value);
   }
+  const { trustProxy } = getServerConfig();
   // Forwarding IPs is explicit: the trusted reverse proxy must overwrite them.
-  if (process.env.TRUST_PROXY === "true" && input.has("x-forwarded-for"))
+  if (trustProxy && input.has("x-forwarded-for"))
     headers.set("x-forwarded-for", input.get("x-forwarded-for")!);
-  if (process.env.TRUST_PROXY === "true" && input.has("x-real-ip")) {
+  if (trustProxy && input.has("x-real-ip")) {
     const ip = input.get("x-real-ip")!;
     if (isIP(ip)) headers.set("x-real-ip", ip);
   }

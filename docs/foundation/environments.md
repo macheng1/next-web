@@ -38,3 +38,26 @@ wx-backend 使用 NODE_ENV 加载其已有 .env.development/.env.production；�
 统一使用 package.json 指定的 pnpm@10.33.0 和 pnpm-lock.yaml。vercel.json 固定安装命令为 `corepack pnpm install --frozen-lockfile`，构建命令为 `corepack pnpm exec next build`，使用标准 .next 输出。Vercel 平台环境变量决定后端及网站环境；当前 dev 联调使用 DEPLOYMENT_ENV=development。
 
 正式生产仍应在发布流程中完成现有 check:production 配置与共享限流核验，不能把直接 next build 成功视为正式发布验收。
+
+## 配置变量清单
+
+实际配置保存在 `config/environments/local.env`、`development.env`、`production.env`；
+启动命令按环境读取对应文件。三份 `.env.example` 模板随代码保存，实际 `.env` 文件不入库。
+不要另在根目录维护一套重复配置；Vercel/CI 则填写相同名字的平台环境变量。
+
+| 变量 | 用途 |
+| --- | --- |
+| DEPLOYMENT_ENV | 网站运行环境，由所选启动命令核对 |
+| MEMBER_API_URL | 服务端后端地址，保留 `/api/v1` |
+| NEXT_PUBLIC_SITE_URL | 用户访问网站的实际地址；邮件、SEO、来源和 OAuth 回调均以此为准 |
+| TRUSTED_ORIGINS | 额外允许提交的完整来源，逗号分隔 |
+| TRUST_PROXY | 是否信任代理提供的 IP；只允许 `true` / `false`，默认 `false` |
+| RATE_LIMIT_MODE | `memory` / `gateway` / `backend`；生产必须使用后两种并完成保护核验 |
+| RATE_LIMIT_VERIFICATION_FILE | 生产限流核验文件路径 |
+| DEV_ALLOWED_ORIGINS | 本地开发允许的额外主机名或 IP，逗号分隔，不含协议、路径 |
+| GOOGLE_CLIENT_ID | Google 客户端 ID；留空隐藏 Google 授权入口，不再有代码中的默认 ID |
+| GOOGLE_REDIRECT_URI | 可留空，自动使用网站地址加 `/api/auth/google/callback`；填写时必须准确匹配 |
+
+应用代码通过 `getServerConfig()` 统一读取和校验配置。修改配置后需重启网站；
+修改部署平台配置后需重新部署。前端通过 wx-backend 完成 Google 登录；客户端密钥
+仅配置在 wx-backend，禁止写入前端环境或 `NEXT_PUBLIC_` 变量。

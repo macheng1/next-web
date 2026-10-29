@@ -1,3 +1,4 @@
+import { getServerConfig } from "@/src/lib/server/config";
 import { apiJson } from "@/src/lib/server/api-response";
 import {
   validateUpload,
@@ -41,7 +42,7 @@ function isAllowedModule(
 export async function POST(request: NextRequest) {
   try {
     await guardMutation(request);
-    const apiUrl = process.env.MEMBER_API_URL;
+    const apiUrl = getServerConfig().memberApiUrl;
     if (!apiUrl) {
       console.error("Upload route error: MEMBER_API_URL is not configured");
       return apiJson(request, { message: "服务器配置错误" }, { status: 500 });

@@ -3,12 +3,13 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import type { WebMember } from "@/src/lib/server/session";
+import { GoogleSecurityMethods } from "./GoogleSecurityMethods";
 import { logout } from "@/src/lib/auth-api";
 import { Button } from "../Button";
 import { AuthError } from "./AuthField";
 import { useAuthTask } from "./use-auth-task";
 import styles from "./auth.module.css";
-export function AccountView({ member }: { member: WebMember }) {
+export function AccountView({ member, googleAvailable = false }: { member: WebMember; googleAvailable?:boolean }) {
   const task = useAuthTask();
   const { t } = task;
   const router = useRouter();
@@ -54,6 +55,7 @@ export function AccountView({ member }: { member: WebMember }) {
           {member.emailVerified ? t.verified : t.unverified}
         </span>
       </div>
+      <GoogleSecurityMethods key={member.id} member={member} googleAvailable={googleAvailable} />
       <div className={styles.actions}>
 
         <Link

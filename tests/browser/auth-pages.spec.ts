@@ -7,7 +7,7 @@ test.beforeEach(async ({page}) => {
 });
 test.use({ baseURL: "http://127.0.0.1:4176" });
 for (const locale of ["en", "zh"] as const) {
-  test(`actual ${locale} auth pages match the layout and contain no third-party entry`, async ({
+  test(`actual ${locale} auth pages match the layout with Google authorization on login`, async ({
     page,
     context,
   }) => {
@@ -29,8 +29,8 @@ for (const locale of ["en", "zh"] as const) {
       }),
     ).toBeVisible();
     await expect(
-      page.getByRole("button", { name: /Google|Microsoft/ }),
-    ).toHaveCount(0);
+      page.getByRole("button", { name: locale === "en" ? "Continue with Google" : "使用 Google 继续", exact: true }),
+    ).toBeVisible();
     await page.setViewportSize({ width: 1440, height: 1000 });
     await expect(page.locator("footer")).toContainText("© ManuLink");
     await page.mouse.move(1, 1);
@@ -105,3 +105,33 @@ test("published policy HTML renders headings and lists rather than raw tags", as
   await expect(page.locator(".policy-rich-text")).toBeVisible();
   await page.screenshot({path: test.info().outputPath("rich-text-verification.png"), fullPage: true});
 });
+
+for (const locale of ["en", "zh"] as const) {
+  test(`Google button requests authorization and handles cancellation (${locale})`, async ({page, context}) => {
+    await context.addCookies([{name: "NEXT_LOCALE", value: locale, url: "http://127.0.0.1:4176"}]);
+    let authorizationLocation = "";
+    // Stop at our redirect boundary: browser redirect chains cannot be mocked
+    // by routing only the later Google URL. Never contact Google in CI.
+    await page.route("**/api/auth/google/start*", async route => {
+      const response = await route.fetch({maxRedirects: 0});
+      expect(response.status()).toBe(303);
+      authorizationLocation = response.headers()["location"];
+      await route.fulfill({status: 200, headers: {"content-type": "text/html", "set-cookie": response.headers()["set-cookie"]}, body: "<h1>Authorization redirect intercepted</h1>"});
+    });
+    await page.goto("/login?returnTo=%2Fbuyer%2Finquiries");
+    await page.getByRole("button", {name: locale === "en" ? "Necessary only" : "仅必要 Cookie"}).click();
+    await page.getByRole("button", {name: locale === "en" ? "Continue with Google" : "使用 Google 继续", exact: true}).click();
+    await expect(page).toHaveURL(/\/api\/auth\/google\/start\?/);
+    await expect.poll(() => authorizationLocation).toMatch(/^https:\/\/accounts.google.com\/o\/oauth2\/v2\/auth\?/);
+    const authorization = new URL(authorizationLocation);
+    expect(authorization.searchParams.get("client_id")).toBe("test-client.apps.googleusercontent.com");
+    expect(authorization.searchParams.get("scope")).toBe("openid email profile");
+    const callback = new URL(authorization.searchParams.get("redirect_uri")!);
+    callback.searchParams.set("state", authorization.searchParams.get("state")!);
+    callback.searchParams.set("error", "access_denied");
+    await page.goto(callback.toString());
+    await expect(page.getByRole("status")).toContainText(locale === "en" ? "cancelled" : "取消");
+    await expect(page).toHaveURL(/returnTo=%2Fbuyer%2Finquiries/);
+    expect((await context.cookies()).some(cookie => cookie.name === "public_web_token")).toBe(false);
+  });
+}

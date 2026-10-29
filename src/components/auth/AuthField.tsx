@@ -41,6 +41,7 @@ export function AuthField({
             size={32}
             className={styles.eye}
             htmlType="button"
+            disabled={props.disabled}
             aria-label={visible ? t.hidePassword : t.showPassword}
             aria-pressed={visible}
             onClick={() => setVisible(!visible)}

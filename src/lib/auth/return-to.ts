@@ -23,7 +23,7 @@ export function safeReturnTo(value: string | null | undefined): string {
   const url = new URL(decoded, "https://site.invalid");
   if (
     url.origin !== "https://site.invalid" ||
-    /^\/(?:login|register|forgot-password|reset-password|api)(?:\/|$)/.test(
+    /^\/(?:login|register|forgot-password|reset-password|google|api)(?:\/|$)/.test(
       url.pathname,
     )
   )

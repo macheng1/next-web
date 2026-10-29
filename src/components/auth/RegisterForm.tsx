@@ -3,6 +3,7 @@ import { useCatalog } from "@/src/lib/catalog/use-catalog";
 import type { PublishedPolicies } from "@/src/lib/catalog/model";
 import { Checkbox } from "@douyinfe/semi-ui-19";
 import Link from "next/link";
+import { GoogleButton } from "./GoogleButton";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -16,7 +17,7 @@ import { AuthPolicyLinks } from "./AuthShell";
 import { AuthField, AuthError } from "./AuthField";
 import { useAuthTask } from "./use-auth-task";
 import styles from "./auth.module.css";
-export function RegisterForm({ returnTo = "/buyer" }: { returnTo?: string }) {
+export function RegisterForm({ returnTo = "/buyer", googleAvailable = false }: { returnTo?: string; googleAvailable?: boolean }) {
   const [step, setStep] = useState<"email" | "verify" | "password">("email");
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
@@ -90,6 +91,7 @@ export function RegisterForm({ returnTo = "/buyer" }: { returnTo?: string }) {
           t.setIntro
         )}
       </p>
+      {step === "email" && googleAvailable && <><GoogleButton returnTo={returnTo} disabled={task.pending}/><div className={styles.divider}><span>{t.orEmail}</span></div></>}
       {step === "email" && policies.error && <div role="alert"><p>{t.serviceUnavailable}</p><Button variant="outline" onClick={policies.retry}>{t.retry}</Button></div>}
       <form
         onSubmit={(event) => {

@@ -40,7 +40,16 @@
       "invalid_avatar": "Choose a valid JPG, PNG or WebP image.",
       "terms_changed": "The terms have changed. Reload, read the current version and accept it again.",
       "terms_required": "Read and accept the Terms of Service and Privacy Policy first.",
-      "session_changed": "Your account has changed. Reload the page before continuing."
+      "session_changed": "Your account has changed. Reload the page before continuing.",
+      "google_unavailable": "Google sign-in is temporarily unavailable. Try again later.",
+      "google_invalid": "Google authorization could not be verified. Start again.",
+      "google_pending_expired": "This Google sign-in attempt expired. Start again.",
+      "google_already_bound": "This Google account is already connected to an account.",
+      "google_email_verification_required": "Verify this email before completing Google sign-in.",
+      "google_not_bound": "No Google account is connected. Reload and try again.",
+      "password_required": "Set an email password before disconnecting Google.",
+      "password_already_set": "This account already has a password. Use Change password.",
+      "email_verification_required": "A verified account email is required for this action."
     },
     "siteTitle": "ManuLink",
     "siteDescription": "Welcome"

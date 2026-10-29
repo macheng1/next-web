@@ -275,6 +275,12 @@ html body {
   box-shadow: 0 0 0 3px var(--jade-50);
 }
 
+/* Semi 在外层绘制焦点边框和光晕；内层不再叠加全局原生焦点环。 */
+.shhy-field .semi-input-wrapper .semi-input:focus-visible,
+.shhy-field .semi-input-textarea-wrapper .semi-input-textarea:focus-visible {
+  outline: none;
+}
+
 /* 聚焦后 hover / active 不能把描边和底色退回去 */
 .shhy-field .semi-input-wrapper.semi-input-wrapper-focus:hover,
 .shhy-field .semi-input-wrapper.semi-input-wrapper-focus:active {

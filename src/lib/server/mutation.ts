@@ -9,7 +9,7 @@ import { assertTrustedOrigin, SecurityError } from "../security/origin";
 import { MemoryRateLimiter } from "../security/rate-limit";
 const limiter = new MemoryRateLimiter();
 export function clientIp(request: Request): string {
-  return process.env.TRUST_PROXY === "true"
+  return getServerConfig().trustProxy
     ? request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown"
     : "unknown";
 }
@@ -18,7 +18,7 @@ export async function guardMutation(request: Request): Promise<void> {
   const config = getServerConfig();
   assertTrustedOrigin(request, config.trustedOrigins);
   if (config.deploymentEnv === "production") {
-    if (!["gateway", "backend"].includes(process.env.RATE_LIMIT_MODE || ""))
+    if (!["gateway", "backend"].includes(config.rateLimitMode || ""))
       throw new SecurityError(503, "protection_unconfigured");
     // Shared limiting is enforced by the configured gateway/backend, never by this process-local map.
     return;

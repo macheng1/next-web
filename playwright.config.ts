@@ -13,6 +13,7 @@ export default defineConfig({
     {
       command:
         "NEXT_DIST_DIR=.next-verify DEPLOYMENT_ENV=test NEXT_PUBLIC_SITE_URL=http://127.0.0.1:4176 pnpm exec next start -p 4176",
+      env: {GOOGLE_CLIENT_ID: "test-client.apps.googleusercontent.com", GOOGLE_REDIRECT_URI: ""},
       url: "http://127.0.0.1:4176/api/health/live",
       reuseExistingServer: false,
     },
