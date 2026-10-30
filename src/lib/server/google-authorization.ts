@@ -1,3 +1,4 @@
+import { exchangeGoogleOnVercel } from "./google-vercel-identity";
 import "server-only";
 import { createHash, randomBytes, timingSafeEqual } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
@@ -154,6 +155,20 @@ export async function finishGoogleAuthorization(request: NextRequest) {
         request.nextUrl.searchParams.has("error")
       )
         throw new Error("invalid code");
+      const exchangeInput = {
+        code,
+        codeVerifier: attempt.verifier,
+        nonce: attempt.nonce,
+        redirectUri: google.redirectUri,
+        ...(attempt.bindingGrant ? { bindingGrant: attempt.bindingGrant } : {}),
+      };
+      const mode = process.env.GOOGLE_AUTH_MODE || "direct";
+      if (mode !== "direct" && mode !== "vercel")
+        throw new Error("invalid Google mode");
+      const assertion =
+        mode === "vercel"
+          ? await exchangeGoogleOnVercel(exchangeInput, google)
+          : undefined;
       const response = await backendFetch("/web/site-auth/google/exchange", {
         // Allow both bounded Google token and signing-key requests to finish.
         timeoutMs: 20_000,
@@ -170,13 +185,8 @@ export async function finishGoogleAuthorization(request: NextRequest) {
             : {}),
         },
         body: JSON.stringify({
-          code,
-          codeVerifier: attempt.verifier,
-          nonce: attempt.nonce,
-          redirectUri: google.redirectUri,
-          ...(attempt.bindingGrant
-            ? { bindingGrant: attempt.bindingGrant }
-            : {}),
+          ...exchangeInput,
+          ...(assertion ? { assertion } : {}),
         }),
       });
       const raw = await response.json();

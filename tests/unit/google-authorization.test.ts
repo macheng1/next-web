@@ -4,6 +4,9 @@ import { GET as start } from "../../src/app/api/auth/google/start/route";
 import { GET as callback } from "../../src/app/api/auth/google/callback/route";
 import { proxyGoogle } from "../../src/lib/server/google-proxy";
 import { sessionFingerprint } from "../../src/lib/server/google-authorization";
+vi.mock("../../src/lib/server/google-vercel-identity", () => ({
+  exchangeGoogleOnVercel: vi.fn(async () => "signed-identity"),
+}));
 beforeEach(() => {
   vi.stubEnv("DEPLOYMENT_ENV", "test");
   vi.stubEnv("GOOGLE_CLIENT_ID", "test-client.apps.googleusercontent.com");
@@ -111,7 +114,7 @@ it("exchanges verified result and writes session only in HttpOnly cookie", async
       { headers: { cookie: a.header } },
     ),
   );
-  const timeouts = timer.mock.calls.map(call => call[1]);
+  const timeouts = timer.mock.calls.map((call) => call[1]);
   timer.mockRestore();
   expect(timeouts).toContain(20_000);
   expect(result.cookies.get("public_web_token")?.value).toBe("secret-session");
@@ -538,4 +541,30 @@ it("sends code only for matching pending identifier and strips identifier from b
   );
   expect(result.status).toBe(200);
   expect(fetch).toHaveBeenCalledTimes(1);
+});
+
+it("Vercel callback sends signed identity with the original attempt context to backend", async () => {
+  vi.stubEnv("GOOGLE_AUTH_MODE", "vercel");
+  const fetch = vi
+    .fn()
+    .mockResolvedValue(
+      Response.json({
+        code: 200,
+        data: { kind: "pending", pendingToken: "pending-token" },
+      }),
+    );
+  vi.stubGlobal("fetch", fetch);
+  const a = await attempt();
+  const result = await callback(
+    new NextRequest(
+      `http://localhost:3000/api/auth/google/callback?code=code&state=${a.state}`,
+      { headers: { cookie: a.header } },
+    ),
+  );
+  expect(JSON.parse(fetch.mock.calls[0][1].body).assertion).toBe(
+    "signed-identity",
+  );
+  expect(result.headers.get("location")).toContain("/google/complete");
+  expect(result.cookies.get(a.saved.name)?.maxAge).toBe(0);
+  expect(result.headers.get("set-cookie")).not.toContain("signed-identity");
 });

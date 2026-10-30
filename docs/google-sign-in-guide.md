@@ -1,3 +1,5 @@
+> 更新：Google 现支持 Vercel 服务端验证模式，配置与切换见 [迁移说明](./google-vercel-migration.md)。下文 direct 架构说明仅适用于旧模式。
+
 # 制造帮 Google 登录接入与排错指南
 
 更新时间：2026 年 10 月 19 日。适用代码：`next-web` 与 `wx-backend` 的当前 `dev` 工作区。

@@ -62,25 +62,49 @@ export function parseServerConfig(
     .filter(Boolean)
     .map((v) => address(v, "TRUSTED_ORIGINS", production, true));
   const proxy = env.TRUST_PROXY?.trim() || "false";
-  if (!["true", "false"].includes(proxy)) throw new ConfigurationError("TRUST_PROXY");
+  if (!["true", "false"].includes(proxy))
+    throw new ConfigurationError("TRUST_PROXY");
   const rateLimitMode = env.RATE_LIMIT_MODE?.trim() || undefined;
-  if (rateLimitMode && !["memory", "gateway", "backend"].includes(rateLimitMode))
+  if (
+    rateLimitMode &&
+    !["memory", "gateway", "backend"].includes(rateLimitMode)
+  )
     throw new ConfigurationError("RATE_LIMIT_MODE");
-  const devAllowedOrigins = (env.DEV_ALLOWED_ORIGINS || "").split(",").map(value => value.trim()).filter(Boolean);
-  if (devAllowedOrigins.some(value => !/^[a-zA-Z0-9.*:-]+$/.test(value)))
+  const devAllowedOrigins = (env.DEV_ALLOWED_ORIGINS || "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (devAllowedOrigins.some((value) => !/^[a-zA-Z0-9.*:-]+$/.test(value)))
     throw new ConfigurationError("DEV_ALLOWED_ORIGINS");
+  if (
+    env.GOOGLE_AUTH_MODE &&
+    !["direct", "vercel"].includes(env.GOOGLE_AUTH_MODE)
+  )
+    throw new ConfigurationError("GOOGLE_AUTH_MODE");
   const clientId = env.GOOGLE_CLIENT_ID?.trim();
-  if (clientId && !/^[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$/.test(clientId))
+  if (
+    clientId &&
+    !/^[A-Za-z0-9_-]+\.apps\.googleusercontent\.com$/.test(clientId)
+  )
     throw new ConfigurationError("GOOGLE_CLIENT_ID");
-  if (!clientId && env.GOOGLE_REDIRECT_URI?.trim()) throw new ConfigurationError("GOOGLE_CLIENT_ID");
+  if (!clientId && env.GOOGLE_REDIRECT_URI?.trim())
+    throw new ConfigurationError("GOOGLE_CLIENT_ID");
   const callback = new URL("/api/auth/google/callback", siteUrl);
-  const redirectUri = clientId ? address(env.GOOGLE_REDIRECT_URI?.trim() || callback.toString(), "GOOGLE_REDIRECT_URI", production) : undefined;
-  if (redirectUri && redirectUri !== callback.toString()) throw new ConfigurationError("GOOGLE_REDIRECT_URI");
+  const redirectUri = clientId
+    ? address(
+        env.GOOGLE_REDIRECT_URI?.trim() || callback.toString(),
+        "GOOGLE_REDIRECT_URI",
+        production,
+      )
+    : undefined;
+  if (redirectUri && redirectUri !== callback.toString())
+    throw new ConfigurationError("GOOGLE_REDIRECT_URI");
   return {
     deploymentEnv,
     trustProxy: proxy === "true",
     rateLimitMode: rateLimitMode as ServerConfig["rateLimitMode"],
-    rateLimitVerificationFile: env.RATE_LIMIT_VERIFICATION_FILE?.trim() || undefined,
+    rateLimitVerificationFile:
+      env.RATE_LIMIT_VERIFICATION_FILE?.trim() || undefined,
     devAllowedOrigins,
     google: clientId ? { clientId, redirectUri: redirectUri! } : undefined,
     siteUrl,

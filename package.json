@@ -29,6 +29,7 @@
   "dependencies": {
     "@douyinfe/semi-icons": "^2.90.10",
     "@douyinfe/semi-ui-19": "^2.90.10",
+    "google-auth-library": "^11.3.2",
     "next": "16.3.8",
     "react": "19.2.6",
     "react-dom": "19.2.6",
